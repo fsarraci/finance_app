@@ -25,8 +25,8 @@ hide_menu_style = """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 Menu = ['Home', 'Login']
-user_list = ['admin', 'fabi']
-pass_list = ['123', 'fabi']
+user_list = ['admin', 'fabi', 'eude', 'kempt']
+pass_list = ['123', 'fabi', 'eude', 'kempt']
 
 #login = True
 #choice = st.sidebar.selectbox('', Menu)
@@ -95,7 +95,7 @@ if login == True:
     tickers = [stock]
 
     x = 1 # how many years from now
-    x = st.sidebar.slider('Period of time (years)', 0.2, 7.0, 5.0)
+    x = st.sidebar.slider('Period of time (years)', 0.15, 7.0, 1.0)
     end_date = datetime.now() - timedelta(days=1)
     start_date = end_date - timedelta(days=int(365*x))
     
@@ -111,7 +111,7 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price')
+    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
@@ -300,7 +300,7 @@ if login == True:
     if ckDividends == True:
         datad = [trace_dividends]
         fig_dividends = simple_plot(datad, '')
-        fig_dividends.update_layout(width = 1150, height = 280)
+        fig_dividends.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig_dividends, use_container_width = False)
     
     ### algorithm for opportunities
