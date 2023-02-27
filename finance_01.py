@@ -15,34 +15,40 @@ import plotly.graph_objs as go
 #py.init_notebook_mode(connected = True)
 #fig = make_subplots(rows = 2)
 
-st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="expanded", menu_items=None)
+st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="auto", menu_items=None)
+
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 Menu = ['Home', 'Login']
 user_list = ['admin', 'fabi']
 pass_list = ['123', 'fabi']
 
 #login = True
-choice = st.sidebar.selectbox('', Menu)
-if choice == 'Home':
-    st.subheader("""Stock Analysis""")
-    st.write('Select Login to use this app.')
+#choice = st.sidebar.selectbox('', Menu)
+#if choice == 'Home':
+st.sidebar.subheader("""Stock Analysis App""")
+#st.sidebar.write('Select Login to use this app.')
+login = False
+#elif choice == 'Login':
+#    login = False
+username = st.sidebar.text_input('Username')
+password = st.sidebar.text_input('Password', type = 'password')
+if username in user_list and password in pass_list:
+    login = True
+    st.success('Logged in as {}'.format(username))
+else:
     login = False
-elif choice == 'Login':
-    login = False
-    username = st.sidebar.text_input('Username')
-    password = st.sidebar.text_input('Password', type = 'password')
-    if username in user_list and password in pass_list:
-        login = True
-        st.success('Logged in as {}'.format(username))
-        
-    else:
-        login = False
-        st.warning('Enter a valid username and password.')
+    st.warning('Enter a valid username and password.')
   
 
 def simple_config_plot(fig, title):
     title = {'text': title, 'xanchor':'center', 'yanchor':'top','y':0.99, 'x':0.5,}
-    fig.update_layout(title = title, font_family="Courier New", font_color="blue", xaxis_rangeslider_visible = False, width = 1150, height = 420, xaxis_showgrid = True, xaxis_gridwidth = 1, xaxis_gridcolor = '#E8E8E8', xaxis_linecolor = 'black', xaxis_tickfont = dict(size=18), yaxis_showgrid = True, yaxis_gridwidth = 1, yaxis_tickfont = dict(size=16), yaxis_gridcolor = '#E8E8E8', yaxis_linecolor = 'black', plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=0, r=10, b=50, t=40), showlegend = True)
+    fig.update_layout(title = title, font_family="Courier New", font_color="blue", xaxis_rangeslider_visible = False, width = 1000, height = 420, xaxis_showgrid = True, xaxis_gridwidth = 1, xaxis_gridcolor = '#E8E8E8', xaxis_linecolor = 'black', xaxis_tickfont = dict(size=14), yaxis_showgrid = True, yaxis_gridwidth = 1, yaxis_tickfont = dict(size=14), yaxis_gridcolor = '#E8E8E8', yaxis_linecolor = 'black', plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=0, r=10, b=50, t=40), showlegend = True)
     
 def simple_plot(data, title):
     fig = go.Figure(data = data)
@@ -247,7 +253,7 @@ if login == True:
     
     fig = simple_plot(data, str(stock))
     fig_voll = simple_plot([trace_vol], '')
-    fig_voll.update_layout(width = 1150, height = 150)
+    fig_voll.update_layout(width = 1000, height = 150)
         
     st.plotly_chart(fig, use_container_width = False)
     st.plotly_chart(fig_voll, use_container_width = False)
@@ -255,13 +261,13 @@ if login == True:
     if ckMACD == True:
         data1 = [trace_macd, trace_signal, trace_hist_macd]
         fig1 = simple_plot(data1, 'MACD')
-        fig1.update_layout(width = 1150, height = 280)
+        fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
     
     if ckIfr == True:
         data2 = [trace_ifr, trace_h70, trace_h30]
         fig2 = simple_plot(data2, 'Relative Force Index')
-        fig2.update_layout(width = 1150, height = 280)
+        fig2.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig2, use_container_width = False)
     
     
@@ -278,7 +284,7 @@ if login == True:
     if ckObv == True:
         data_obv = [trace_obv]
         fig_obv = simple_plot(data_obv, 'OBV')
-        fig_obv.update_layout(width = 1150, height = 280)
+        fig_obv.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig_obv, use_container_width = False)
         
     ### Dividends
