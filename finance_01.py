@@ -111,7 +111,7 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1))
+    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
