@@ -44,7 +44,7 @@ if username in user_list and password in pass_list:
 else:
     login = False
     st.warning('Enter a valid username and password.')
-  
+
 
 def simple_config_plot(fig, title):
     title = {'text': title, 'xanchor':'center', 'yanchor':'top','y':0.99, 'x':0.5,}
@@ -95,7 +95,7 @@ if login == True:
     tickers = [stock]
 
     x = 1 # how many years from now
-    x = st.sidebar.slider('Period of time (years)', 0.15, 7.0, 1.0)
+    x = st.sidebar.slider('Period of time (years)', 0.15, 5.0, 1.0)
     end_date = datetime.now() - timedelta(days=1)
     start_date = end_date - timedelta(days=int(365*x))
     
@@ -125,10 +125,10 @@ if login == True:
     
     window1 = 12
     window2 = 26
-    window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
-    window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
     ckMA1 = st.sidebar.checkbox('Moving Avg')
     ckEMA1 = st.sidebar.checkbox('Exp Moving Avg')
+    window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
+    window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
     ckMACD = st.sidebar.checkbox('MACD')
     ckHiLo = st.sidebar.checkbox('HiLo')
     ckBollinger = st.sidebar.checkbox('Bollinger')
