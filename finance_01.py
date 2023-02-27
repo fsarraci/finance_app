@@ -6,13 +6,13 @@ import pandas as pd
 import yfinance as yf
 yf.pdr_override()
 
-import plotly.offline as py
+#import plotly.offline as py
 #import plotly.io as io
 #io.renderers.default='browser'
 import plotly.graph_objs as go
 #from plotly.subplots import make_subplots
 
-py.init_notebook_mode(connected = True)
+#py.init_notebook_mode(connected = True)
 #fig = make_subplots(rows = 2)
 
 st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="expanded", menu_items=None)
