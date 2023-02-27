@@ -1,2 +1,2 @@
-pandas_datareader == 0.10.0
+pandas-datareader == 0.10.0
 yfinance == 0.2.12
