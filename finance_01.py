@@ -6,6 +6,7 @@ import pandas as pd
 import yfinance as yf
 yf.pdr_override()
 
+import requests
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout
@@ -110,8 +111,11 @@ if login == True:
     #tickers = ['VALE3.SA', 'PETR3.SA']
     
     #tickers = ['ITSA4.SA', 'CMIG4.SA', 'ELET3.SA', 'VIIA3.SA'] #purchased
-
-    df_stocks_list = pd.read_excel('stocks_list.xlsx')
+    
+    url = 'https://github.com/fsarraci/finance_app/blob/main/stocks_list.xlsx?raw=true'
+    file = requests.get(url)
+    df_stocks_list = pd.read_excel(file.content)
+    
     tickers_list = df_stocks_list['ticker'].to_list()
     tickers_list = [*set(tickers_list)]
     tickers_list.sort()
