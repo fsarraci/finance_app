@@ -6,6 +6,7 @@ import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
 yf.pdr_override()
+from plotly.tools import mpl_to_plotly
 
 #import requests
 from sklearn.preprocessing import StandardScaler
@@ -376,8 +377,8 @@ if login == True:
     if ckRenko == True:
         all_data_renko = all_data.reset_index('Ticker')
         bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
-        figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), returnfig = True) #panel_ratios=(3,1)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
+        figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
+        st.set_option('deprecation.showPyplotGlobalUse', False)   
         st.pyplot(figrenko)
         
     if ckIfr == True:
