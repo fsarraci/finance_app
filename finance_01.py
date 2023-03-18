@@ -3,10 +3,11 @@ import pandas_datareader.data as pdr
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
+import mplfinance as fplt
 import yfinance as yf
 yf.pdr_override()
 
-import requests
+#import requests
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout
@@ -100,6 +101,17 @@ def get_ema(window,prices):
         datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
     return datam
 
+def ATR(DF, n):
+    df = DF.copy() # making copy of the original dataframe
+    df['H-L'] = abs(df['High'] - df['Low']) 
+    df['H-PC'] = abs(df['High'] - df['Adj Close'].shift(1))# high -previous close
+    df['L-PC'] = abs(df['Low'] - df['Adj Close'].shift(1)) #low - previous close
+    df['TR'] = df[['H-L','H-PC','L-PC']].max(axis =1, skipna = False) # True range
+    df['ATR'] = df['TR'].rolling(n).mean() # average –true range
+    df = df.drop(['H-L','H-PC','L-PC'], axis =1) # dropping the unneccesary columns
+    df.dropna(inplace = True) # droping null items
+    return df
+
 if login == True:
     ### SETUP ###
     # tickers_list = ['VALE3.SA', 'PETR3.SA', 'PETR4.SA', '^BVSP', 'CMIG4.SA', 'ITSA4.SA', 'VIIA3.SA','CPLE6.SA', 'MGLU3.SA', 'BBDC4.SA', 'BBDC3.SA', 'B3SA3.SA', 'WEGE3.SA', 'ELET3.SA', 'ITUB4.SA', 'BBAS3.SA', 'JBSS3.SA', 'CIEL3.SA', 'RADL3.SA', 'BEEF3.SA', 'ABEV3.SA', 'LREN3.SA', 'TIMS3.SA', 'HYPE3.SA', 'GGBR4.SA', 'RRRP3.SA', 'UGPA3.SA','PETZ3.SA', 'RAIZ4.SA', 'NTCO3.SA', 'EGIE3.SA','BRAP4.SA','TAEE11.SA','PRIO3.SA','CCRO3.SA','RAIL3.SA','CYRE3.SA','ENEV3.SA','USIM5.SA','ALPA4.SA','BRKM5.SA','ARZZ3.SA', 'AZUL4.SA','CSNA3.SA', 'RDOR3.SA','MRVE3.SA','SOMA3.SA', 'GOAU4.SA', 'EMBR3.SA', 'VIVT3.SA','GOLL4.SA','TOTS3.SA', 'CVCB3.SA', 'HAPV3.SA', 'BRFS3.SA','BPAC11.SA', 'RENT3.SA', 'ENBR3.SA', 'EQTL3.SA', 'BBSE3.SA', 'VBBR3.SA', 'ASAI3.SA', 'MULT3.SA', 'KLBN11.SA', 'ALUP11.SA', 'SBSP3.SA'] #ALL of Them
@@ -112,26 +124,30 @@ if login == True:
     
     #tickers = ['ITSA4.SA', 'CMIG4.SA', 'ELET3.SA', 'VIIA3.SA'] #purchased
     
-    url = 'https://github.com/fsarraci/finance_app/blob/main/stocks_list.xlsx?raw=true'
-    file = requests.get(url)
-    df_stocks_list = pd.read_excel(file.content)
+    #url = 'https://github.com/fsarraci/finance_app/blob/main/stocks_list.xlsx?raw=true'
+    #file = requests.get(url)
+    #file = 'stocks_list.xlsx'
+    #df_stocks_list = pd.read_excel(file)
+       
+    #tickers_list = df_stocks_list['ticker'].to_list()
     
-    tickers_list = df_stocks_list['ticker'].to_list()
+    tickers_list = ['HAPV3.SA', 'MGLU3.SA', 'AZUL4.SA', 'GOLL4.SA', 'PETR4.SA', 'CVCB3.SA', 'B3SA3.SA', 'BBDC4.SA', 'OIBR3.SA', 'ITUB4.SA', 'ABEV3.SA', 'VALE3.SA', 'BRFS3.SA', 'ITSA4.SA', 'COGN3.SA', 'CIEL3.SA', 'FNOR11.SA', 'AMAR3.SA', 'PETR3.SA', 'LREN3.SA', 'CEAB3.SA', 'POMO4.SA', 'RENT3.SA', 'USIM5.SA', 'MRFG3.SA', 'ELET3.SA', 'GGBR4.SA', 'CSAN3.SA', 'BBAS3.SA', 'BEEF3.SA', 'CPLE6.SA', 'BPAC11.SA', 'PRIO3.SA', 'CSNA3.SA', 'GOAU4.SA', 'JBSS3.SA', 'MRVE3.SA', 'CMIG4.SA', 'ENBR3.SA', 'EQTL3.SA', 'BBSE3.SA', 'VIVR3.SA', 'UGPA3.SA', 'RAIL3.SA', 'BBDC3.SA', 'BBDC3.SA', 'TOTS3.SA', 'EMBR3.SA', 'RADL3.SA', 'GRND3.SA', 'CCRO3.SA', 'LIGT3.SA', 'ENEV3.SA', 'MOVI3.SA', 'ECOR3.SA', 'ALPA4.SA', 'WEGE3.SA', 'SUZB3.SA', 'MULT3.SA', 'YDUQ3.SA', 'QUAL3.SA', 'ALUP11.SA', 'TEND3.SA', 'KLBN11.SA', 'GFSA3.SA', 'BPAN4.SA', 'CRFB3.SA', 'VAMO3.SA', 'ANIM3.SA', 'SMTO3.SA', 'BRAP4.SA', 'HYPE3.SA', 'ALSO3.SA', 'RCSL3.SA', 'POMO3.SA', 'RAPT4.SA', 'ELET6.SA', 'TRPL4.SA', 'CPFE3.SA', 'KLBN4.SA', 'CYRE3.SA', 'ARZZ3.SA', 'SBSP3.SA', 'STBP3.SA', 'EGIE3.SA', 'ITUB3.SA', 'MDIA3.SA', 'VIVT3.SA', 'ODPV3.SA', 'FLRY3.SA', 'SAPR4.SA', 'EZTC3.SA', 'DIRR3.SA', 'BRKM5.SA', 'GUAR3.SA', 'BRSR6.SA', 'JHSF3.SA', 'IRBR3.SA', 'SANB11.SA', 'PSSA3.SA', 'TSLA34.SA', 'INEP3.SA', 'VIVA3.SA', 'AALR3.SA', 'CPLE3.SA', 'LUPA3.SA', 'TAEE11.SA', 'HBOR3.SA', 'CSMG3.SA', 'ENAT3.SA', 'ENGI11.SA', 'CAML3.SA', 'RANI3.SA', 'POSI3.SA', 'NEOE3.SA', 'MYPK3.SA', 'PTBL3.SA', 'MELI34.SA', 'ABCB4.SA', 'EVEN3.SA', 'MILS3.SA', 'MXRF11.SA', 'MEAL3.SA', 'COCE5.SA', 'KEPL3.SA', 'SLCE3.SA', 'ROMI3.SA', 'VGIR11.SA', 'BMGB4.SA', 'RCSL4.SA', 'SAPR11.SA', 'ETER3.SA', 'PDGR3.SA', 'TUPY3.SA', 'SQIA3.SA', 'TASA4.SA', 'TRIS3.SA', 'WIZS3.SA', 'FRAS3.SA', 'TAEE4.SA', 'SHUL4.SA', 'LOGG3.SA', 'JSLG3.SA', 'OIBR4.SA', 'INEP4.SA', 'USIM3.SA', 'DASA3.SA', 'VULC3.SA', 'PNVL3.SA', 'FESA4.SA', 'SEER3.SA', 'KLBN3.SA', 'AGRO3.SA', 'AZEV4.SA', 'SANB4.SA', 'PARD3.SA', 'SAPR3.SA', 'AMZO34.SA', 'SANB3.SA', 'TECN3.SA', 'SHOW3.SA', 'MSFT34.SA', 'VLID3.SA', 'AAPL34.SA', 'LEVE3.SA', 'UNIP6.SA', 'TAEE3.SA', 'GOAU3.SA', 'SGPS3.SA', 'BRPR3.SA', 'CMIG3.SA', 'ITSA3.SA', 'TPIS3.SA', 'TGMA3.SA', 'PFRM3.SA', 'LPSB3.SA', 'HCTR11.SA', 'BTCR11.SA', 'NFLX34.SA', 'ALUP4.SA', 'KNCR11.SA', 'GOGL34.SA']
+    
     tickers_list = [*set(tickers_list)]
     tickers_list.sort()
 
     st.sidebar.write("""Stock Analysis""" + ' - ' + str(len(tickers_list)) + ' tickers')
     stock = st.sidebar.selectbox('Select a stock', tickers_list)
     tickers = [stock]
-    aux_stock = df_stocks_list.loc[df_stocks_list['ticker'] == tickers[0]]
-    aux_stock = aux_stock.reset_index()
-    aux_stock.drop(aux_stock.columns[[0, 1]], axis=1, inplace=True)
+    #aux_stock = df_stocks_list.loc[df_stocks_list['ticker'] == tickers[0]]
+    #aux_stock = aux_stock.reset_index()
+    #aux_stock.drop(aux_stock.columns[[0, 1]], axis=1, inplace=True)
     
     x = 1 # how many years from now
     x = st.sidebar.slider('Period of time (years)', 0.15, 5.0, 1.0)
     end_date = datetime.now() - timedelta(days=1)
     start_date = end_date - timedelta(days=int(365*x))
-    st.write(str(aux_stock['full_name'][0]))
+    #st.write(str(aux_stock['full_name'][0]))
     st.sidebar.write("Start date: " + str(start_date.date() + timedelta(days=1)))
     
     all_data = get(tickers, start_date, end_date)
@@ -171,6 +187,7 @@ if login == True:
     window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
     window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
     ckMACD = st.sidebar.checkbox('MACD')
+    ckRenko = st.sidebar.checkbox('Renko') 
     ckHiLo = st.sidebar.checkbox('HiLo')
     ckBollinger = st.sidebar.checkbox('Bollinger')
     ckIfr = st.sidebar.checkbox('IFR')
@@ -356,6 +373,13 @@ if login == True:
         fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
     
+    if ckRenko == True:
+        all_data_renko = all_data.reset_index('Ticker')
+        bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
+        figrenko =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo',figsize =(20,5), title = "Renko Chart", mav=(10), volume=True)
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        st.pyplot(figrenko)
+        
     if ckIfr == True:
         data2 = [trace_ifr, trace_h70, trace_h30]
         fig2 = simple_plot(data2, 'Relative Force Index')
