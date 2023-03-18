@@ -33,8 +33,8 @@ hide_menu_style = """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 Menu = ['Home', 'Login']
-user_list = ['admin', 'fabi', 'eude', 'kempt']
-pass_list = ['123', 'fabi', 'eude', 'kempt']
+user_list = ['admin', 'fabi', 'eude']
+pass_list = ['123', 'fabi', 'eude']
 
 # login = True
 # username = 'admin'
@@ -144,7 +144,7 @@ if login == True:
     #aux_stock.drop(aux_stock.columns[[0, 1]], axis=1, inplace=True)
     
     x = 1 # how many years from now
-    x = st.sidebar.slider('Period of time (years)', 0.15, 5.0, 1.0)
+    x = st.sidebar.slider('Period of time (years)', 0.15, 5.0, 1.5)
     end_date = datetime.now() - timedelta(days=1)
     start_date = end_date - timedelta(days=int(365*x))
     #st.write(str(aux_stock['full_name'][0]))
@@ -376,7 +376,7 @@ if login == True:
     if ckRenko == True:
         all_data_renko = all_data.reset_index('Ticker')
         bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
-        figrenko =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo',figsize =(20,5), title = "Renko Chart", mav=(10), volume=True)
+        figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), returnfig = True) #panel_ratios=(3,1)
         st.set_option('deprecation.showPyplotGlobalUse', False)
         st.pyplot(figrenko)
         
