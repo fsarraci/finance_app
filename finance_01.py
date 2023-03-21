@@ -146,7 +146,7 @@ if login == True:
     
     x = 1 # how many years from now
     x = st.sidebar.slider('Period of time (years)', 0.15, 5.0, 1.5)
-    end_date = datetime.now() - timedelta(days=1)
+    end_date = datetime.now() - timedelta(days=0)
     start_date = end_date - timedelta(days=int(365*x))
     #st.write(str(aux_stock['full_name'][0]))
     st.sidebar.write("Start date: " + str(start_date.date() + timedelta(days=1)))
@@ -293,7 +293,7 @@ if login == True:
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
     if chkFib == True:
-        end_date_fib = datetime.now() - timedelta(days=1)
+        end_date_fib = datetime.now() - timedelta(days=0)
         start_date_fib = end_date - timedelta(days=int(365*xfib))
         all_data_fib = get(tickers, start_date_fib, end_date_fib)
         fib_min = min(all_data_fib['Low'])
@@ -425,7 +425,7 @@ if login == True:
     if username == 'admin':  
         start_date_min = end_date - timedelta(days=int(365*4)) # ultimos 4 anos
         #end_date_min = datetime.now() - timedelta(days=30)
-        threshold = 1.12
+        threshold = 1.4
             
         if st.button('Check for opportunities'):
             
@@ -436,7 +436,7 @@ if login == True:
                     
             datac = all_data_full.reset_index()
             
-            datacc = datac[datac['Date']<datetime.today()-timedelta(days=30)]
+            datacc = datac[datac['Date']<datetime.today()-timedelta(days=0)]
             
             data_p_plot = datac[datac['Date']==datac['Date'][len(datac)-1]]
             data_p_plot = data_p_plot.sort_values(by = ['Close'])
@@ -458,7 +458,18 @@ if login == True:
                 aux = pd.DataFrame([])
                 aux[tick] = close_min[tick]
                 min_value = aux[tick].min()
-                if close[tick][-1] <= (min_value * threshold):
+                r_last = aux.iloc[-1].to_numpy()
+                MAlast = all_data_full.loc[tick].Close.rolling(window = 10).mean().dropna()
+                
+                auxmv = pd.DataFrame([])
+                auxmv = all_data_full.loc[tick].dropna()
+                mm1v = get_ema(window1, auxmv.Close)
+                mm2v = get_ema(window2, auxmv.Close)
+                mm_macdv = mm1v.EMA - mm2v.EMA
+                mm_signalv = get_ema(9, mm_macdv.dropna()).EMA
+                hist_macdv = mm_macdv - mm_signalv
+                
+                if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
                     data_min = pd.DataFrame([])
                     data_min = aux.loc[aux[tick] == min_value]
                     df_table.at[i, 'Ticker'] = str(tick)
