@@ -45,7 +45,7 @@ def simple_config_plot(fig, title):
     #xaxis={'type': 'category'}
     
 def simple_plot(data, title):
-    fig = go.Figure(data = data)
+    fig = plotly.graph_objs.Figure(data = data)
     #fig.append_trace(data,1,1)
     simple_config_plot(fig, title)
     #fig.show(renderer='browser')
@@ -151,7 +151,7 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
+    trace = plotly.graph_objs.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
@@ -161,7 +161,7 @@ if login == True:
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = plotly.graph_objs.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
@@ -187,10 +187,10 @@ if login == True:
     MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
     MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
     
-    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
+    trace_avg1 = plotly.graph_objs.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
                            line = dict(color='#d06539'), opacity=1)
     
-    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
+    trace_avg2 = plotly.graph_objs.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
                            line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
@@ -218,22 +218,22 @@ if login == True:
     for i in range(1, len(ema_data2)):
         ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
     
-    trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
+    trace_ema1 = plotly.graph_objs.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
-    trace_ema2 = go.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
+    trace_ema2 = plotly.graph_objs.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
     
-    trace_macd = go.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
+    trace_macd = plotly.graph_objs.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
     
-    trace_signal = go.Scatter(x = mm_signal.index, y = mm_signal, name = 'Signal', line = dict(color='#B22222'), opacity=1)
+    trace_signal = plotly.graph_objs.Scatter(x = mm_signal.index, y = mm_signal, name = 'Signal', line = dict(color='#B22222'), opacity=1)
     
-    trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
+    trace_hist_macd = plotly.graph_objs.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
     
     HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
     LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
     
-    trace_high = go.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
+    trace_high = plotly.graph_objs.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
     
-    trace_low = go.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
+    trace_low = plotly.graph_objs.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
     
     boll = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
     bollstdv = all_data.loc[stock].Close.rolling(window = 20).std().dropna()
@@ -241,11 +241,11 @@ if login == True:
     bollh = boll + bollstdv.apply(lambda x: (x * 2))
     bolll = boll - bollstdv.apply(lambda x: (x * 2))
     
-    trace_bollh = go.Scatter(x = bollh.index, y = bollh, name = 'Boll. High', opacity = 1, line = dict(color='#17BECF'))
+    trace_bollh = plotly.graph_objs.Scatter(x = bollh.index, y = bollh, name = 'Boll. High', opacity = 1, line = dict(color='#17BECF'))
     
-    trace_bolll = go.Scatter(x = bolll.index, y = bolll, name = 'Boll. Low', opacity = 1, line = dict(color='#17BECF'))
+    trace_bolll = plotly.graph_objs.Scatter(x = bolll.index, y = bolll, name = 'Boll. Low', opacity = 1, line = dict(color='#17BECF'))
     
-    trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
+    trace_bollm = plotly.graph_objs.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
     stock_ifr = all_data.loc[stock].Close
     ifr = pd.DataFrame(index = stock_ifr.index)
@@ -272,9 +272,9 @@ if login == True:
     ifr['h70'] = 70
     ifr['h30'] = 30
     
-    trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
-    trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
-    trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    trace_ifr = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
+    trace_h70 = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    trace_h30 = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
     
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
@@ -306,18 +306,18 @@ if login == True:
         y45 = [l4, l5, l5, l4]
 
         esp = 1
-        trace_l01 = go.Scatter(x = x01, y = y01, opacity = 0.15, line = dict(color='red', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l12 = go.Scatter(x = x01, y = y12, opacity = 0.15, line = dict(color='yellow', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l23 = go.Scatter(x = x01, y = y23, opacity = 0.15, line = dict(color='green', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l34 = go.Scatter(x = x01, y = y34, opacity = 0.15, line = dict(color='cyan', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l45 = go.Scatter(x = x01, y = y45, opacity = 0.15, line = dict(color='blue', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l01 = plotly.graph_objs.Scatter(x = x01, y = y01, opacity = 0.15, line = dict(color='red', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l12 = plotly.graph_objs.Scatter(x = x01, y = y12, opacity = 0.15, line = dict(color='yellow', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l23 = plotly.graph_objs.Scatter(x = x01, y = y23, opacity = 0.15, line = dict(color='green', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l34 = plotly.graph_objs.Scatter(x = x01, y = y34, opacity = 0.15, line = dict(color='cyan', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l45 = plotly.graph_objs.Scatter(x = x01, y = y45, opacity = 0.15, line = dict(color='blue', dash='dash', width=esp), fill = 'toself', showlegend = False)
         
-        trace_l0 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l0'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l1 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l1'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l2 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l2'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l3 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l3'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l4 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l4'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l5 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l5'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l0 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l0'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l1 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l1'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l2 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l2'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l3 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l3'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l4 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l4'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l5 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l5'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
         data.append(trace_l0)
         data.append(trace_l1)
         data.append(trace_l2)
@@ -382,7 +382,7 @@ if login == True:
     obv['volume'] = np.where(obv_changes > 0, stock_obv.Volume, stock_obv.Volume * (-1))
     obv['volume_sum'] = obv.volume.cumsum()
     
-    trace_obv = go.Scatter(x = obv.index, y = obv.volume_sum, opacity = 1, name='OBV', showlegend = True)
+    trace_obv = plotly.graph_objs.Scatter(x = obv.index, y = obv.volume_sum, opacity = 1, name='OBV', showlegend = True)
     
     if ckObv == True:
         data_obv = [trace_obv]
@@ -398,7 +398,7 @@ if login == True:
     data_d['Year'] = data_d['Date'].dt.year
     data_d = data_d[data_d['Year'] >= start_date.year]
     data_d = data_d.reset_index()
-    trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
+    trace_dividends = plotly.graph_objs.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
     
     if ckDividends == True:
         datad = [trace_dividends]
