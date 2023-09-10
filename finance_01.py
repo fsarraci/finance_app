@@ -152,6 +152,7 @@ if login == True:
     st.sidebar.write("Start date: " + str(start_date.date() + timedelta(days=1)))
     
     all_data = get(tickers, start_date, end_date)
+    
 
     # aux_dat = all_data.reset_index()
     # aux_dat['Date'] = aux_dat['Date'].dt.strftime('%d-%m-%Y')
@@ -164,8 +165,12 @@ if login == True:
     #     trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close)
     #     data = [trace]
     #     simple_plot(data, str(stock))
-      
-    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price')#, line=dict(width=1.5))
+    
+    indices = all_data.reset_index().Date
+    
+    #trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
+    
+    trace = go.Candlestick(x = indices, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
@@ -175,7 +180,7 @@ if login == True:
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = indices, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
