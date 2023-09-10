@@ -173,8 +173,8 @@ if login == True:
     
     trace = go.Candlestick(x = all_data.reset_index().Date, open = all_data.reset_index().Open, high =  all_data.reset_index().High, low =  all_data.reset_index().Low, close =  all_data.reset_index().Close, name = 'Price', line=dict(width=1.5))
     
-    volume_n = all_data.loc[stock].Volume
-    highest_p = all_data.loc[stock].High
+    volume_n = all_data.reset_index().Volume
+    highest_p = all_data.reset_index().High
     
     #volume_f = 0.4 * max(highest_p) * volume_n / max(volume_n)
     volume_f = volume_n
