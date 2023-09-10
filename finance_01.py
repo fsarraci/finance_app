@@ -203,15 +203,13 @@ if login == True:
     MA1 = all_data.Close.rolling(window = window1).mean().dropna()
     MA2 = all_data.Close.rolling(window = window2).mean().dropna()
     
-    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
-                           line = dict(color='#d06539'), opacity=1)
+    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), line = dict(color='#d06539'), opacity=1)
     
-    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
-                           line = dict(color='#0032ac'), opacity=1)
+    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
     ema_data1['Price'] = all_data.dropna().Close
-    ema_data1['MA'] = MA1
+    ema_data1['MA'] = pd.DataFrame(MA1)
     ema_data1['EMA'] = np.NaN
     ema_data1.EMA[0] = ema_data1.MA[1]
     
@@ -220,7 +218,7 @@ if login == True:
         
     ema_data2 = pd.DataFrame(index = MA2.index)
     ema_data2['Price'] = all_data.dropna().Close
-    ema_data2['MA'] = MA2
+    ema_data2['MA'] = pd.DataFrame(MA2)
     ema_data2['EMA'] = np.NaN
     ema_data2.EMA[0] = ema_data2.MA[1]
     
