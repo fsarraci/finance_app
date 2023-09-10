@@ -5,10 +5,9 @@ import numpy as np
 import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
-yf.pdr_override()
-
 import plotly.graph_objs as go
 
+yf.pdr_override()
 
 st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
