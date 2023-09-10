@@ -153,6 +153,8 @@ if login == True:
     
     all_data = get(tickers, start_date, end_date)
 
+    all_data = all_data.reset_index().set_index(['Date'])
+    
     # aux_dat = all_data.reset_index()
     # aux_dat['Date'] = aux_dat['Date'].dt.strftime('%d-%m-%Y')
     # all_data = aux_dat.set_index(['Ticker', 'Date'])   
@@ -165,17 +167,17 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
+    trace = go.Candlestick(x = all_data.index, open = all_data.Open, high = all_data.High, low = all_data.Low, close = all_data.Close, name = 'Price', line=dict(width=1.5))
     
-    volume_n = all_data.loc[stock].Volume
-    highest_p = all_data.loc[stock].High
+    volume_n = all_data.Volume
+    highest_p = all_data.High
     
     #volume_f = 0.4 * max(highest_p) * volume_n / max(volume_n)
     volume_f = volume_n
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = all_data.index, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
@@ -198,8 +200,8 @@ if login == True:
     k1 = ( 2 / (window1 + 1) )
     k2 = ( 2 / (window2 + 1) )
     
-    MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
-    MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
+    MA1 = all_data.Close.rolling(window = window1).mean().dropna()
+    MA2 = all_data.Close.rolling(window = window2).mean().dropna()
     
     trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
                            line = dict(color='#d06539'), opacity=1)
@@ -208,7 +210,7 @@ if login == True:
                            line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
-    ema_data1['Price'] = all_data.loc[stock].dropna().Close
+    ema_data1['Price'] = all_data.dropna().Close
     ema_data1['MA'] = MA1
     ema_data1['EMA'] = np.NaN
     ema_data1.EMA[0] = ema_data1.MA[1]
@@ -217,12 +219,12 @@ if login == True:
         ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
         
     ema_data2 = pd.DataFrame(index = MA2.index)
-    ema_data2['Price'] = all_data.loc[stock].dropna().Close
+    ema_data2['Price'] = all_data.dropna().Close
     ema_data2['MA'] = MA2
     ema_data2['EMA'] = np.NaN
     ema_data2.EMA[0] = ema_data2.MA[1]
     
-    auxm = all_data.loc[stock].dropna()
+    auxm = all_data.dropna()
     mm1 = get_ema(window1, auxm.Close)
     mm2 = get_ema(window2, auxm.Close)
     mm_macd = mm1.EMA - mm2.EMA
@@ -242,15 +244,15 @@ if login == True:
     
     trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
     
-    HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
-    LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
+    HighS = all_data.High.rolling(window = 8).mean().dropna()
+    LowS = all_data.Low.rolling(window = 8).mean().dropna()
     
     trace_high = go.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
     
     trace_low = go.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
     
-    boll = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
-    bollstdv = all_data.loc[stock].Close.rolling(window = 20).std().dropna()
+    boll = all_data.Close.rolling(window = 20).mean().dropna()
+    bollstdv = all_data.Close.rolling(window = 20).std().dropna()
     
     bollh = boll + bollstdv.apply(lambda x: (x * 2))
     bolll = boll - bollstdv.apply(lambda x: (x * 2))
@@ -261,7 +263,7 @@ if login == True:
     
     trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
-    stock_ifr = all_data.loc[stock].Close
+    stock_ifr = all_data.Close
     ifr = pd.DataFrame(index = stock_ifr.index)
     ifr_changes = stock_ifr.diff()
     ifr['gain'] = ifr_changes.clip(lower=0)
@@ -375,7 +377,7 @@ if login == True:
         st.plotly_chart(fig1, use_container_width = False)
     
     if ckRenko == True:
-        all_data_renko = all_data.reset_index('Ticker')
+        all_data_renko = all_data
         bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
         figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
         st.set_option('deprecation.showPyplotGlobalUse', False)   
@@ -388,7 +390,7 @@ if login == True:
         st.plotly_chart(fig2, use_container_width = False)
     
     
-    stock_obv = all_data.loc[stock]
+    stock_obv = all_data
     obv = pd.DataFrame(index = stock_obv.index)
     obv_changes = stock_obv.Close - stock_obv.Open
     obv['open'] = stock_obv.Open
