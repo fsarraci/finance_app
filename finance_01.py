@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
+import plotly.graph_objs as go
+
 yf.pdr_override()
 #from plotly.tools import mpl_to_plotly
 
@@ -16,7 +18,6 @@ yf.pdr_override()
 #import plotly.offline as py
 #import plotly.io as io
 #io.renderers.default='browser'
-import plotly.graph_objs as go
 
 #from pmdarima.arima import auto_arima
 #from plotly.subplots import make_subplots
