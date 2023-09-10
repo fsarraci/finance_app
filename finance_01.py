@@ -1,12 +1,11 @@
 import streamlit as st
+import plotly.graph_objs as go
 import pandas_datareader.data as pdr
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
-import plotly.graph_objs as go
-
 yf.pdr_override()
 #from plotly.tools import mpl_to_plotly
 
