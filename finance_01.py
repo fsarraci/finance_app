@@ -5,10 +5,24 @@ import numpy as np
 import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
-import plotly
+yf.pdr_override()
+#from plotly.tools import mpl_to_plotly
+
+#import requests
+#from sklearn.preprocessing import StandardScaler
+#from tensorflow.keras.models import Sequential
+#from tensorflow.keras.layers import Dense, LSTM, Dropout
+
+#import plotly.offline as py
+#import plotly.io as io
+#io.renderers.default='browser'
 import plotly.graph_objs as go
 
-yf.pdr_override()
+#from pmdarima.arima import auto_arima
+#from plotly.subplots import make_subplots
+
+#py.init_notebook_mode(connected = True)
+#fig = make_subplots(rows = 2)
 
 st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
@@ -23,8 +37,8 @@ Menu = ['Home', 'Login']
 user_list = ['admin', 'fabi', 'eude', 'user']
 pass_list = ['123', 'fabi', 'eude', 'user']
 
-login = True
-username = 'admin'
+# login = True
+# username = 'admin'
 
 st.sidebar.subheader("""Stock Analysis App""")
 login = False
@@ -45,7 +59,7 @@ def simple_config_plot(fig, title):
     #xaxis={'type': 'category'}
     
 def simple_plot(data, title):
-    fig = plotly.graph_objs.Figure(data = data)
+    fig = go.Figure(data = data)
     #fig.append_trace(data,1,1)
     simple_config_plot(fig, title)
     #fig.show(renderer='browser')
@@ -151,7 +165,7 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = plotly.graph_objs.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
+    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
@@ -161,7 +175,7 @@ if login == True:
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = plotly.graph_objs.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
@@ -187,10 +201,10 @@ if login == True:
     MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
     MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
     
-    trace_avg1 = plotly.graph_objs.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
+    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
                            line = dict(color='#d06539'), opacity=1)
     
-    trace_avg2 = plotly.graph_objs.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
+    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
                            line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
@@ -218,22 +232,22 @@ if login == True:
     for i in range(1, len(ema_data2)):
         ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
     
-    trace_ema1 = plotly.graph_objs.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
+    trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
-    trace_ema2 = plotly.graph_objs.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
+    trace_ema2 = go.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
     
-    trace_macd = plotly.graph_objs.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
+    trace_macd = go.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
     
-    trace_signal = plotly.graph_objs.Scatter(x = mm_signal.index, y = mm_signal, name = 'Signal', line = dict(color='#B22222'), opacity=1)
+    trace_signal = go.Scatter(x = mm_signal.index, y = mm_signal, name = 'Signal', line = dict(color='#B22222'), opacity=1)
     
-    trace_hist_macd = plotly.graph_objs.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
+    trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
     
     HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
     LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
     
-    trace_high = plotly.graph_objs.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
+    trace_high = go.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
     
-    trace_low = plotly.graph_objs.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
+    trace_low = go.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
     
     boll = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
     bollstdv = all_data.loc[stock].Close.rolling(window = 20).std().dropna()
@@ -241,11 +255,11 @@ if login == True:
     bollh = boll + bollstdv.apply(lambda x: (x * 2))
     bolll = boll - bollstdv.apply(lambda x: (x * 2))
     
-    trace_bollh = plotly.graph_objs.Scatter(x = bollh.index, y = bollh, name = 'Boll. High', opacity = 1, line = dict(color='#17BECF'))
+    trace_bollh = go.Scatter(x = bollh.index, y = bollh, name = 'Boll. High', opacity = 1, line = dict(color='#17BECF'))
     
-    trace_bolll = plotly.graph_objs.Scatter(x = bolll.index, y = bolll, name = 'Boll. Low', opacity = 1, line = dict(color='#17BECF'))
+    trace_bolll = go.Scatter(x = bolll.index, y = bolll, name = 'Boll. Low', opacity = 1, line = dict(color='#17BECF'))
     
-    trace_bollm = plotly.graph_objs.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
+    trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
     stock_ifr = all_data.loc[stock].Close
     ifr = pd.DataFrame(index = stock_ifr.index)
@@ -272,9 +286,9 @@ if login == True:
     ifr['h70'] = 70
     ifr['h30'] = 30
     
-    trace_ifr = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
-    trace_h70 = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
-    trace_h30 = plotly.graph_objs.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
+    trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
     
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
@@ -306,18 +320,18 @@ if login == True:
         y45 = [l4, l5, l5, l4]
 
         esp = 1
-        trace_l01 = plotly.graph_objs.Scatter(x = x01, y = y01, opacity = 0.15, line = dict(color='red', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l12 = plotly.graph_objs.Scatter(x = x01, y = y12, opacity = 0.15, line = dict(color='yellow', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l23 = plotly.graph_objs.Scatter(x = x01, y = y23, opacity = 0.15, line = dict(color='green', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l34 = plotly.graph_objs.Scatter(x = x01, y = y34, opacity = 0.15, line = dict(color='cyan', dash='dash', width=esp), fill = 'toself', showlegend = False)
-        trace_l45 = plotly.graph_objs.Scatter(x = x01, y = y45, opacity = 0.15, line = dict(color='blue', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l01 = go.Scatter(x = x01, y = y01, opacity = 0.15, line = dict(color='red', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l12 = go.Scatter(x = x01, y = y12, opacity = 0.15, line = dict(color='yellow', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l23 = go.Scatter(x = x01, y = y23, opacity = 0.15, line = dict(color='green', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l34 = go.Scatter(x = x01, y = y34, opacity = 0.15, line = dict(color='cyan', dash='dash', width=esp), fill = 'toself', showlegend = False)
+        trace_l45 = go.Scatter(x = x01, y = y45, opacity = 0.15, line = dict(color='blue', dash='dash', width=esp), fill = 'toself', showlegend = False)
         
-        trace_l0 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l0'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l1 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l1'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l2 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l2'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l3 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l3'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l4 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l4'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
-        trace_l5 = plotly.graph_objs.Scatter(x = all_data_fib['Date'], y = all_data_fib['l5'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l0 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l0'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l1 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l1'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l2 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l2'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l3 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l3'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l4 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l4'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
+        trace_l5 = go.Scatter(x = all_data_fib['Date'], y = all_data_fib['l5'], opacity = 0.7, line = dict(color='rgb(0, 0, 255)', dash='dash', width=esp), showlegend = False)
         data.append(trace_l0)
         data.append(trace_l1)
         data.append(trace_l2)
@@ -382,7 +396,7 @@ if login == True:
     obv['volume'] = np.where(obv_changes > 0, stock_obv.Volume, stock_obv.Volume * (-1))
     obv['volume_sum'] = obv.volume.cumsum()
     
-    trace_obv = plotly.graph_objs.Scatter(x = obv.index, y = obv.volume_sum, opacity = 1, name='OBV', showlegend = True)
+    trace_obv = go.Scatter(x = obv.index, y = obv.volume_sum, opacity = 1, name='OBV', showlegend = True)
     
     if ckObv == True:
         data_obv = [trace_obv]
@@ -398,7 +412,7 @@ if login == True:
     data_d['Year'] = data_d['Date'].dt.year
     data_d = data_d[data_d['Year'] >= start_date.year]
     data_d = data_d.reset_index()
-    trace_dividends = plotly.graph_objs.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
+    trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
     
     if ckDividends == True:
         datad = [trace_dividends]
@@ -494,5 +508,195 @@ if login == True:
             
         
 ####
+
+
+
+
+###########################
+    # if username == 'admin':    
+    #     if st.button("COMBINED - DL + ARIMA"):
+            
+    #         df_acao_fec = all_data.reset_index()
+    #         df_acao_fec = df_acao_fec[['Date', 'Close']]
+    #         df_acao_fec = df_acao_fec[:-1]
+    #         dates = df_acao_fec['Date']
+    #         df_acao_fec = df_acao_fec.set_index(['Date'])
+                   
+    #         model_arima = auto_arima(df_acao_fec,start_p=1, start_q=1,
+    #                            max_p=3, max_q=3, m=12,
+    #                            start_P=0, seasonal=True,
+    #                            d=1, D=1, trace=True,
+    #                            error_action='ignore',  
+    #                            suppress_warnings=True)
+           
+    #         n_future = 9
+    #         forecast = model_arima.predict(n_periods = n_future)
+            
+    #         list_output_prev_arima = forecast.tolist()
+            
+    #         predict_dates = pd.date_range(list(dates)[-1] + pd.DateOffset((1)), periods=n_future, freq='b').tolist()
+    #         #predict_dates
+            
+    #         forecast_dates =[]
+    #         for i in predict_dates:
+    #             forecast_dates.append(i.date())    
+            
+    #         df_forecast = pd.DataFrame({'data':np.array(forecast_dates), 'close':list_output_prev_arima})
+    #         df_forecast['data'] = pd.to_datetime(df_forecast['data'])
+    #         df_forecast = df_forecast.set_index(['data'])
+    #         #df_forecast
+            
+    #         trace_arima = go.Scatter(x = df_forecast.index, y = df_forecast.close, opacity = 1, line=dict(color='rgb(155, 100, 255)'), mode = 'lines', name='ARIMA Forecast', showlegend = True)
+            
+            
+    #         qtd_linhas = len(df_acao_fec)
+    
+    #         qtd_linhas_treino = round(0.9 * qtd_linhas)
+    #         qtd_linhas_teste = qtd_linhas - qtd_linhas_treino
+    
+    #         #normalizando os dados
+    #         scaler = StandardScaler()        
+    #         df_scaled = scaler.fit_transform(df_acao_fec)
+            
+    #         #separa treino e teste
+    #         train = df_scaled[:qtd_linhas_treino]
+    #         test = df_scaled[qtd_linhas_treino: qtd_linhas_treino + qtd_linhas_teste]
+            
+    #         #gerando dados de treino e teste
+    #         steps = 15
+    #         features = [0] # indices of Close, Volume, and Delta columns
+    #         X_train, Y_train = create_df(train, steps, features)
+    #         X_test, Y_test = create_df(test, steps, features)
+            
+    #         #gerando os dados que o modelo espera
+    #         X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], len(features))
+    #         X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], len(features))
+    
+    #         n_lstm = 100
+               
+    #         #montando a rede
+    #         model = Sequential()
+    #         model.add(LSTM(n_lstm, return_sequences=True, input_shape=(steps,len(features))))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm, return_sequences=True))
+    #         model.add(Dropout(0.2))
+    #         model.add(LSTM(n_lstm))
+    #         model.add(Dropout(0.2))
+    #         model.add(Dense(1))
+            
+    #         model.compile(optimizer = 'adam', loss='mse')
+            
+    #         model.summary()
+            
+    #         #treinamento do modelo
+    #         validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs = 30, batch_size=10, verbose = 2)
+            
+    #         df_training = pd.DataFrame()
+    #         df_training['loss'] = validation.history['loss']
+    #         df_training['val_loss'] = validation.history['val_loss']
+            
+    #         preva = model.predict(X_train)
+    #         preva = scaler.inverse_transform(preva)
+            
+    #         prevb = model.predict(X_test)
+    #         prevb = scaler.inverse_transform(prevb)
+            
+    #         dfa = pd.DataFrame()
+    #         dfa['close'] = pd.DataFrame(np.array(preva).tolist())
+    #         dfa.index = df_acao_fec[steps:len(preva)+steps].index
+                    
+    #         dfb = pd.DataFrame()
+    #         dfb['close'] = pd.DataFrame(np.array(prevb).tolist())
+    #         dfb.index = df_acao_fec[len(preva)+2*steps:len(preva)+2*steps+len(prevb)].index
+               
+    #         trace_preva = go.Scatter(x = dfa.index, y = dfa['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Train', showlegend = True)
+    #         trace_prevb = go.Scatter(x = dfb.index, y = dfb['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Test', showlegend = True)
+            
+    #         trace_training = go.Scatter(x = df_training.index, y = df_training['loss'], opacity = 1, line=dict(color='rgb(255, 0, 0)'), name='training loss', showlegend = True)
+    #         trace_training1 = go.Scatter(x = df_training.index, y = df_training['val_loss'], opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='validation loss', showlegend = True)
+            
+    #         datatrain = [trace_training, trace_training1]             
+    #         figtrain = simple_plot(datatrain, str(stock))
+    #         st.plotly_chart(figtrain, use_container_width = False)
+                   
+    #         #previsao para os proximos 10 dias
+    #         length_test = len(test)
+    #         #length_test
+            
+    #         #pegar os ultimos dias que sao o tamanho do step
+    #         days_input_steps = length_test - steps
+            
+    #         #transforma em array
+    #         input_steps = test[days_input_steps:]
+    #         input_steps = np.array(input_steps).reshape(1,-1)
+    #         #input_steps
+    
+    #         #transformar em lista
+    #         list_output_steps = list(input_steps)
+    #         list_output_steps = list_output_steps[0].tolist()
+    #         #list_output_steps
+            
+    #         pred_output =[]
+    #         i = 0
+            
+    #         while(i<n_future):
+    #             if(len(list_output_steps)>steps):
+    #                 input_steps = np.array(list_output_steps[1:])
+    #                 #print('{} dia. Valores de entrada -> {}'.format(i, input_steps))
+    #                 input_steps = input_steps.reshape(1,-1)
+    #                 input_steps = input_steps.reshape(1, steps, len(features))
+                    
+    #                 pred = model.predict(input_steps, verbose=0)
+                    
+    #                 #print('{} dia. Valor previsto -> {}'.format(i, pred))
+    #                 list_output_steps.extend(pred[0].tolist())
+    #                 list_output_steps = list_output_steps[1:]
+    #                 pred_output.extend(pred.tolist())
+    #                 i=i+1
+    #             else:
+    #                 input_steps = input_steps.reshape(1, steps, len(features))
+    #                 pred = model.predict(input_steps, verbose=0)
+    #                 #print(pred[0])
+    #                 list_output_steps.extend(pred[0].tolist())
+    #                 #print(len(list_output_steps))
+    #                 pred_output.extend(pred.tolist())
+    #                 i=i+1
+            
+    #         #transforma saida
+    #         prev = scaler.inverse_transform(pred_output)
+    #         prev = np.array(prev).reshape(1,-1)
+    #         list_output_prev = list(prev)
+    #         list_output_prev = prev[0].tolist()
+    #         #list_output_prev
+               
+    #         df_forecast1 = pd.DataFrame(index = forecast_dates)
+    #         df_forecast1['close'] = list_output_prev     
+           
+    #         trace_lstm = go.Scatter(x = df_forecast1.index, y = df_forecast1.close, opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM Forecast', showlegend = True)
+              
+    #         df_forecast_combined = pd.DataFrame(index = forecast_dates)
+    #         df_forecast_combined['close'] = (df_forecast['close'] + df_forecast1['close'])/2
+            
+    #         trace_combined = go.Scatter(x = df_forecast_combined.index, y = df_forecast_combined.close, opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='Combined Prediction', mode = 'lines', showlegend = True)
+            
+    #         data = [trace, trace_arima, trace_lstm, trace_combined, trace_preva, trace_prevb]
+    #         #data = [trace, trace_arima, trace_lstm, trace_preva, trace_prevb]                 
+    #         fig = simple_plot(data, str(stock))
+    #         st.plotly_chart(fig, use_container_width = False)
 
 
