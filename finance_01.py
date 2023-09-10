@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import mplfinance as fplt
 import yfinance as yf
+import plotly
 import plotly.graph_objs as go
 
 yf.pdr_override()
