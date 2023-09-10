@@ -1,5 +1,4 @@
 import streamlit as st
-import plotly.graph_objs as go
 import pandas_datareader.data as pdr
 from datetime import datetime, timedelta
 import numpy as np
@@ -17,6 +16,7 @@ yf.pdr_override()
 #import plotly.offline as py
 #import plotly.io as io
 #io.renderers.default='browser'
+import plotly.graph_objs as go
 
 #from pmdarima.arima import auto_arima
 #from plotly.subplots import make_subplots
@@ -152,7 +152,6 @@ if login == True:
     st.sidebar.write("Start date: " + str(start_date.date() + timedelta(days=1)))
     
     all_data = get(tickers, start_date, end_date)
-    
 
     # aux_dat = all_data.reset_index()
     # aux_dat['Date'] = aux_dat['Date'].dt.strftime('%d-%m-%Y')
@@ -165,23 +164,18 @@ if login == True:
     #     trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close)
     #     data = [trace]
     #     simple_plot(data, str(stock))
+      
+    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
-    indices = all_data.reset_index().Date
-    open1 = all_data.reset_index().Open
-    
-    #trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
-    
-    trace = go.Candlestick(x = all_data.reset_index().Date, open = all_data.reset_index().Open, high =  all_data.reset_index().High, low =  all_data.reset_index().Low, close =  all_data.reset_index().Close, name = 'Price', line=dict(width=1.5))
-    
-    volume_n = all_data.reset_index().Volume
-    highest_p = all_data.reset_index().High
+    volume_n = all_data.loc[stock].Volume
+    highest_p = all_data.loc[stock].High
     
     #volume_f = 0.4 * max(highest_p) * volume_n / max(volume_n)
     volume_f = volume_n
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = all_data.reset_index().Date, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
@@ -204,8 +198,8 @@ if login == True:
     k1 = ( 2 / (window1 + 1) )
     k2 = ( 2 / (window2 + 1) )
     
-    MA1 = all_data.reset_index().Close.rolling(window = window1).mean().dropna()
-    MA2 = all_data.reset_index().Close.rolling(window = window2).mean().dropna()
+    MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
+    MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
     
     trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
                            line = dict(color='#d06539'), opacity=1)
@@ -214,7 +208,7 @@ if login == True:
                            line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
-    ema_data1['Price'] = all_data.reset_index().dropna().Close
+    ema_data1['Price'] = all_data.loc[stock].dropna().Close
     ema_data1['MA'] = MA1
     ema_data1['EMA'] = np.NaN
     ema_data1.EMA[0] = ema_data1.MA[1]
@@ -223,7 +217,7 @@ if login == True:
         ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
         
     ema_data2 = pd.DataFrame(index = MA2.index)
-    ema_data2['Price'] = all_data.reset_index().dropna().Close
+    ema_data2['Price'] = all_data.loc[stock].dropna().Close
     ema_data2['MA'] = MA2
     ema_data2['EMA'] = np.NaN
     ema_data2.EMA[0] = ema_data2.MA[1]
@@ -248,15 +242,15 @@ if login == True:
     
     trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
     
-    HighS = all_data.reset_index().High.rolling(window = 8).mean().dropna()
-    LowS = all_data.reset_index().Low.rolling(window = 8).mean().dropna()
+    HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
+    LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
     
     trace_high = go.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
     
     trace_low = go.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
     
-    boll = all_data.reset_index().Close.rolling(window = 20).mean().dropna()
-    bollstdv = all_data.reset_index().Close.rolling(window = 20).std().dropna()
+    boll = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
+    bollstdv = all_data.loc[stock].Close.rolling(window = 20).std().dropna()
     
     bollh = boll + bollstdv.apply(lambda x: (x * 2))
     bolll = boll - bollstdv.apply(lambda x: (x * 2))
