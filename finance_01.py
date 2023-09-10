@@ -212,9 +212,8 @@ if login == True:
     ema_data1['MA'] = pd.DataFrame(MA1)
     ema_data1['EMA'] = np.NaN
     #ema_data1 = ema_data1.reset_index().set_index(['Date'])
-    #ema_data1['EMA'][0] = ema_data1['MA'][1]
-    ema_data1.EMA[0] = ema_data1.iloc[1].MA
-    
+    ema_data1['EMA'][0] = ema_data1['MA'][1]
+        
     for i in range(1, len(ema_data1)):
         ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
         
@@ -223,9 +222,8 @@ if login == True:
     ema_data2['MA'] = pd.DataFrame(MA2)
     ema_data2['EMA'] = np.NaN
     #ema_data2 = ema_data2.reset_index().set_index(['Date'])
-    #ema_data2['EMA'][0] = ema_data2['MA'][1]
-    ema_data2.EMA[0] = ema_data2.iloc[1].MA
-    
+    ema_data2['EMA'][0] = ema_data2['MA'][1]
+        
     auxm = all_data.dropna()
     mm1 = get_ema(window1, auxm.Close)
     mm2 = get_ema(window2, auxm.Close)
