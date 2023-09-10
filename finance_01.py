@@ -23,8 +23,8 @@ Menu = ['Home', 'Login']
 user_list = ['admin', 'fabi', 'eude', 'user']
 pass_list = ['123', 'fabi', 'eude', 'user']
 
-# login = True
-# username = 'admin'
+login = True
+username = 'admin'
 
 st.sidebar.subheader("""Stock Analysis App""")
 login = False
