@@ -167,10 +167,11 @@ if login == True:
     #     simple_plot(data, str(stock))
     
     indices = all_data.reset_index().Date
+    open1 = all_data.reset_index().Open
     
     #trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
-    trace = go.Candlestick(x = indices, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
+    trace = go.Candlestick(x = all_data.reset_index().Date, open = all_data.reset_index().Open, high =  all_data.reset_index().High, low =  all_data.reset_index().Low, close =  all_data.reset_index().Close, name = 'Price', line=dict(width=1.5))
     
     volume_n = all_data.loc[stock].Volume
     highest_p = all_data.loc[stock].High
@@ -180,7 +181,7 @@ if login == True:
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = indices, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = all_data.reset_index().Date, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
