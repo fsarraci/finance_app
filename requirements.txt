@@ -1,12 +1,12 @@
 pandas-datareader == 0.10.0
-pandas < 1.4.4
+pandas == 1.4.4
 numpy == 1.23.5
 yfinance == 0.2.12
 plotly == 5.13.0
 requests == 2.28.1
 openpyxl == 3.0.10
 mplfinance == 0.12.9b7
-tensorflow
+tensorflow == 2.11.0
 protobuf == 3.19.6
-streamlit
-scikit-learn
+streamlit == 1.17.0
+scikit-learn == 1.2.1
