@@ -214,12 +214,17 @@ if login == True:
     #ema_data1 = ema_data1.reset_index().set_index(['Date'])
     ema_data1 = ema_data1.reset_index()
     #ema_data1 = pd.DataFrame(ema_data1)
-    ema_data1['EMA'][0] = ema_data1['MA'][1]
-    #ema_data1.iat[0,2] = ema_data1.iloc[1].MA
+    #ema_data1['EMA'][0] = ema_data1['MA'][1]
+    ema_data1.at[0,'EMA'] = ema_data1.iloc[1].MA
         
+    #for i in range(1, len(ema_data1)):
+    #    ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
+    
     for i in range(1, len(ema_data1)):
-        ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
+        ema_data1.at[i,'EMA'] = (ema_data1.iloc[i].Price * k1) + ((1 - k1) * ema_data1.iloc[i-1].EMA)
         
+    ema_data1 = ema_data1.set_index(['Date'])
+    
     ema_data2 = pd.DataFrame(index = MA2.index)
     ema_data2['Price'] = all_data.dropna().Close
     ema_data2['MA'] = pd.DataFrame(MA2)
@@ -227,8 +232,8 @@ if login == True:
     #ema_data2 = ema_data2.reset_index().set_index(['Date'])
     ema_data2 = ema_data2.reset_index()
     #ema_data2 = pd.DataFrame(ema_data2)
-    ema_data2['EMA'][0] = ema_data2['MA'][1]
-    #ema_data2.iat[0,2] = ema_data2.iloc[1].MA
+    #ema_data2['EMA'][0] = ema_data2['MA'][1]
+    ema_data2.at[0,'EMA'] = ema_data2.iloc[1].MA
         
     auxm = all_data.dropna()
     mm1 = get_ema(window1, auxm.Close)
@@ -237,8 +242,13 @@ if login == True:
     mm_signal = get_ema(9, mm_macd.dropna()).EMA
     hist_macd = mm_macd - mm_signal
     
+    #for i in range(1, len(ema_data2)):
+    #    ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
+        
     for i in range(1, len(ema_data2)):
-        ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
+        ema_data2.at[i,'EMA'] = (ema_data2.iloc[i].Price * k2) + ((1 - k2) * ema_data2.iloc[i-1].EMA)
+    
+    ema_data2 = ema_data2.set_index(['Date'])
     
     trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
