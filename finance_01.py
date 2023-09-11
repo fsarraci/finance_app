@@ -92,14 +92,22 @@ def get_ema(window,prices):
     kk = (2 / (window + 1))
     ma = prices.rolling(window = window).mean().dropna()
     
+    ma = pd.DataFrame(ma)
+    
     datam = pd.DataFrame(index = ma.index)
     datam['Price'] = prices
     datam['EMA'] = np.NaN
     
-    datam.EMA[0] = ma[1]
+    #datam.EMA[0] = ma[1]
+    datam['EMA'] = pd.DataFrame(ma)
     
+    #for i in range(1, len(datam)):
+    #    datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
+    #return datam
+
     for i in range(1, len(datam)):
-        datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
+        datam.at[i, 'EMA'] = (datam.iloc[i].Price * kk) + ((1 - kk)*datam.iloc[i-1].EMA)
+    
     return datam
 
 def ATR(DF, n):
