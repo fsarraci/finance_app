@@ -294,35 +294,7 @@ if login == True:
     
     trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
-    # stock_ifr = all_data.Close
-    # ifr = pd.DataFrame(index = stock_ifr.index)
-    # ifr_changes = stock_ifr.diff()
-    # ifr['gain'] = ifr_changes.clip(lower=0)
-    # ifr['loss'] = ifr_changes.clip(upper=0).abs()
-    
-    # ifr['gainAvg'] = np.NaN
-    # ifr['lossAvg'] = np.NaN
-    
-    # windowi = 14
-    # ifr.gainAvg[:windowi] = ifr.gain[:windowi].mean()
-    # ifr.lossAvg[:windowi] = ifr.loss[:windowi].mean()
-    # ifr.gainAvg[windowi] = ifr.iloc[0:windowi].gain.mean()
-    # ifr.lossAvg[windowi] = ifr.iloc[0:windowi].loss.mean()
-    
-    # for i in range(windowi+1,len(ifr)):
-    #     # ifr.gainAvg[i] = (ifr.gainAvg[i-1]*(windowi - 1) + ifr.gain[i])/windowi
-    #     # ifr.lossAvg[i] = (ifr.lossAvg[i-1]*(windowi - 1) - ifr.loss[i])/windowi
-    #     ifr.gainAvg[i] = ifr.gain[i-windowi:i].sum() / windowi
-    #     ifr.lossAvg[i] = ifr.loss[i-windowi:i].sum() / windowi
-        
-    # ifr['value'] = 100 - (100/(1 + (ifr.gainAvg / ifr.lossAvg)))
-    # ifr['h70'] = 70
-    # ifr['h30'] = 30
-    
-    # trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
-    # trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
-    # trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
-    
+      
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
     if chkFib == True:
