@@ -92,14 +92,17 @@ def get_ema(window,prices):
     kk = (2 / (window + 1))
     ma = prices.rolling(window = window).mean().dropna()
     
-    ma = pd.DataFrame(ma)
+    ma = pd.DataFrame(ma).reset_index()
+    prices = pd.DataFrame(prices).reset_index()
     
-    datam = pd.DataFrame(index = ma.index)
-    datam['Price'] = prices
-    datam['EMA'] = np.NaN
+    datam = pd.DataFrame()
+    #datam = pd.DataFrame()
+    datam['Date'] = prices.Date
+    datam['Price'] = prices.Close
+    datam['EMA'] = prices.Close
     
     #datam.EMA[0] = ma[1]
-    datam['EMA'] = pd.DataFrame(ma)
+    #datam.at[0,'EMA'] = ma.iloc[1].Close
     
     #for i in range(1, len(datam)):
     #    datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
@@ -107,7 +110,8 @@ def get_ema(window,prices):
 
     for i in range(1, len(datam)):
         datam.at[i, 'EMA'] = (datam.iloc[i].Price * kk) + ((1 - kk)*datam.iloc[i-1].EMA)
-    
+
+    datam = datam.set_index(['Date'])
     return datam
 
 def ATR(DF, n):
@@ -201,7 +205,7 @@ if login == True:
     ckRenko = st.sidebar.checkbox('Renko') 
     ckHiLo = st.sidebar.checkbox('HiLo')
     ckBollinger = st.sidebar.checkbox('Bollinger')
-    ckIfr = st.sidebar.checkbox('IFR')
+    #ckIfr = st.sidebar.checkbox('IFR')
     ckObv = st.sidebar.checkbox('OBV')
     ckDividends = st.sidebar.checkbox('Dividends')
     
@@ -249,6 +253,7 @@ if login == True:
     mm1 = get_ema(window1, auxm.Close)
     mm2 = get_ema(window2, auxm.Close)
     mm_macd = mm1.EMA - mm2.EMA
+    mm_macd = mm_macd.rename('Close')
     mm_signal = get_ema(9, mm_macd.dropna()).EMA
     hist_macd = mm_macd - mm_signal
     
@@ -289,34 +294,34 @@ if login == True:
     
     trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
-    stock_ifr = all_data.Close
-    ifr = pd.DataFrame(index = stock_ifr.index)
-    ifr_changes = stock_ifr.diff()
-    ifr['gain'] = ifr_changes.clip(lower=0)
-    ifr['loss'] = ifr_changes.clip(upper=0).abs()
+    # stock_ifr = all_data.Close
+    # ifr = pd.DataFrame(index = stock_ifr.index)
+    # ifr_changes = stock_ifr.diff()
+    # ifr['gain'] = ifr_changes.clip(lower=0)
+    # ifr['loss'] = ifr_changes.clip(upper=0).abs()
     
-    ifr['gainAvg'] = np.NaN
-    ifr['lossAvg'] = np.NaN
+    # ifr['gainAvg'] = np.NaN
+    # ifr['lossAvg'] = np.NaN
     
-    windowi = 14
-    ifr.gainAvg[:windowi] = ifr.gain[:windowi].mean()
-    ifr.lossAvg[:windowi] = ifr.loss[:windowi].mean()
-    ifr.gainAvg[windowi] = ifr.iloc[0:windowi].gain.mean()
-    ifr.lossAvg[windowi] = ifr.iloc[0:windowi].loss.mean()
+    # windowi = 14
+    # ifr.gainAvg[:windowi] = ifr.gain[:windowi].mean()
+    # ifr.lossAvg[:windowi] = ifr.loss[:windowi].mean()
+    # ifr.gainAvg[windowi] = ifr.iloc[0:windowi].gain.mean()
+    # ifr.lossAvg[windowi] = ifr.iloc[0:windowi].loss.mean()
     
-    for i in range(windowi+1,len(ifr)):
-        # ifr.gainAvg[i] = (ifr.gainAvg[i-1]*(windowi - 1) + ifr.gain[i])/windowi
-        # ifr.lossAvg[i] = (ifr.lossAvg[i-1]*(windowi - 1) - ifr.loss[i])/windowi
-        ifr.gainAvg[i] = ifr.gain[i-windowi:i].sum() / windowi
-        ifr.lossAvg[i] = ifr.loss[i-windowi:i].sum() / windowi
+    # for i in range(windowi+1,len(ifr)):
+    #     # ifr.gainAvg[i] = (ifr.gainAvg[i-1]*(windowi - 1) + ifr.gain[i])/windowi
+    #     # ifr.lossAvg[i] = (ifr.lossAvg[i-1]*(windowi - 1) - ifr.loss[i])/windowi
+    #     ifr.gainAvg[i] = ifr.gain[i-windowi:i].sum() / windowi
+    #     ifr.lossAvg[i] = ifr.loss[i-windowi:i].sum() / windowi
         
-    ifr['value'] = 100 - (100/(1 + (ifr.gainAvg / ifr.lossAvg)))
-    ifr['h70'] = 70
-    ifr['h30'] = 30
+    # ifr['value'] = 100 - (100/(1 + (ifr.gainAvg / ifr.lossAvg)))
+    # ifr['h70'] = 70
+    # ifr['h30'] = 30
     
-    trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
-    trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
-    trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    # trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
+    # trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    # trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
     
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
@@ -409,11 +414,11 @@ if login == True:
         st.set_option('deprecation.showPyplotGlobalUse', False)   
         st.pyplot(figrenko)
         
-    if ckIfr == True:
-        data2 = [trace_ifr, trace_h70, trace_h30]
-        fig2 = simple_plot(data2, 'Relative Force Index')
-        fig2.update_layout(width = 1000, height = 280)
-        st.plotly_chart(fig2, use_container_width = False)
+    # if ckIfr == True:
+    #     data2 = [trace_ifr, trace_h70, trace_h30]
+    #     fig2 = simple_plot(data2, 'Relative Force Index')
+    #     fig2.update_layout(width = 1000, height = 280)
+    #     st.plotly_chart(fig2, use_container_width = False)
     
     
     stock_obv = all_data
