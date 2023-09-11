@@ -425,7 +425,7 @@ if login == True:
     if username == 'admin' or username == 'user':  
         start_date_min = end_date - timedelta(days=int(365*4)) # ultimos 4 anos
         #end_date_min = datetime.now() - timedelta(days=30)
-        threshold = 1.3
+        threshold = 1.2
             
         if st.button('Check for Opportunities'):
             
