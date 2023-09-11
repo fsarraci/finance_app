@@ -1,3 +1,4 @@
+python_version=="3.9.12"
 pandas-datareader == 0.10.0
 pandas < 1.4.4
 numpy == 1.23.5
