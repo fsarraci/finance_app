@@ -229,12 +229,13 @@ if login == True:
     ema_data2 = pd.DataFrame(index = MA2.index)
     ema_data2['Price'] = all_data.dropna().Close
     ema_data2['MA'] = pd.DataFrame(MA2)
-    ema_data2['EMA'] = np.NaN
+    ema_data2['EMA'] = pd.DataFrame(MA2)
+    #ema_data2['EMA'] = np.NaN
     #ema_data2 = ema_data2.reset_index().set_index(['Date'])
     ema_data2 = ema_data2.reset_index()
     #ema_data2 = pd.DataFrame(ema_data2)
     #ema_data2['EMA'][0] = ema_data2['MA'][1]
-    ema_data2.at[0,'EMA'] = ema_data2.iloc[1].MA
+    #ema_data2.at[0,'EMA'] = ema_data2.iloc[1].MA
         
     auxm = all_data.dropna()
     mm1 = get_ema(window1, auxm.Close)
