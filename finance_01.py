@@ -9,16 +9,16 @@ yf.pdr_override()
 #from plotly.tools import mpl_to_plotly
 
 #import requests
-#from sklearn.preprocessing import StandardScaler
-#from tensorflow.keras.models import Sequential
-#from tensorflow.keras.layers import Dense, LSTM, Dropout
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 
 #import plotly.offline as py
 #import plotly.io as io
 #io.renderers.default='browser'
 import plotly.graph_objs as go
 
-#from pmdarima.arima import auto_arima
+from pmdarima.arima import auto_arima
 #from plotly.subplots import make_subplots
 
 #py.init_notebook_mode(connected = True)
@@ -26,12 +26,12 @@ import plotly.graph_objs as go
 
 st.set_page_config(page_title='Stock Analysis App', page_icon='🖖', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
-hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        </style>
-        """
-st.markdown(hide_menu_style, unsafe_allow_html=True)
+# hide_menu_style = """
+#         <style>
+#         #MainMenu {visibility: hidden;}
+#         </style>
+#         """
+# st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 Menu = ['Home', 'Login']
 user_list = ['admin', 'fabi', 'eude', 'user']
@@ -92,26 +92,14 @@ def get_ema(window,prices):
     kk = (2 / (window + 1))
     ma = prices.rolling(window = window).mean().dropna()
     
-    ma = pd.DataFrame(ma).reset_index()
-    prices = pd.DataFrame(prices).reset_index()
+    datam = pd.DataFrame(index = ma.index)
+    datam['Price'] = prices
+    datam['EMA'] = np.NaN
     
-    datam = pd.DataFrame()
-    #datam = pd.DataFrame()
-    datam['Date'] = prices.Date
-    datam['Price'] = prices.Close
-    datam['EMA'] = prices.Close
+    datam.EMA[0] = ma[1]
     
-    #datam.EMA[0] = ma[1]
-    #datam.at[0,'EMA'] = ma.iloc[1].Close
-    
-    #for i in range(1, len(datam)):
-    #    datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
-    #return datam
-
     for i in range(1, len(datam)):
-        datam.at[i, 'EMA'] = (datam.iloc[i].Price * kk) + ((1 - kk)*datam.iloc[i-1].EMA)
-
-    datam = datam.set_index(['Date'])
+        datam.EMA[i] = (datam.Price[i] * kk) + ((1 - kk)*datam.EMA[i-1])
     return datam
 
 def ATR(DF, n):
@@ -165,8 +153,6 @@ if login == True:
     
     all_data = get(tickers, start_date, end_date)
 
-    all_data = all_data.reset_index().set_index(['Date'])
-    
     # aux_dat = all_data.reset_index()
     # aux_dat['Date'] = aux_dat['Date'].dt.strftime('%d-%m-%Y')
     # all_data = aux_dat.set_index(['Ticker', 'Date'])   
@@ -179,17 +165,17 @@ if login == True:
     #     data = [trace]
     #     simple_plot(data, str(stock))
       
-    trace = go.Candlestick(x = all_data.index, open = all_data.Open, high = all_data.High, low = all_data.Low, close = all_data.Close, name = 'Price', line=dict(width=1.5))
+    trace = go.Candlestick(x = all_data.loc[stock].index, open = all_data.loc[stock].Open, high = all_data.loc[stock].High, low = all_data.loc[stock].Low, close = all_data.loc[stock].Close, name = 'Price', line=dict(width=1.5))
     
-    volume_n = all_data.Volume
-    highest_p = all_data.High
+    volume_n = all_data.loc[stock].Volume
+    highest_p = all_data.loc[stock].High
     
     #volume_f = 0.4 * max(highest_p) * volume_n / max(volume_n)
     volume_f = volume_n
     
     # trace_vol = go.Scatter(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', line = dict(color='black'), opacity=1)
     
-    trace_vol = go.Bar(x = all_data.index, y = volume_f, name = 'Volume', marker_color = 'black')
+    trace_vol = go.Bar(x = all_data.loc[stock].index, y = volume_f, name = 'Volume', marker_color = 'black')
     
     chkFib = st.sidebar.checkbox('Fibonacci')
     if chkFib == True:
@@ -205,65 +191,46 @@ if login == True:
     ckRenko = st.sidebar.checkbox('Renko') 
     ckHiLo = st.sidebar.checkbox('HiLo')
     ckBollinger = st.sidebar.checkbox('Bollinger')
-    #ckIfr = st.sidebar.checkbox('IFR')
+    ckIfr = st.sidebar.checkbox('IFR')
     ckObv = st.sidebar.checkbox('OBV')
-    #ckDividends = st.sidebar.checkbox('Dividends')
+    ckDividends = st.sidebar.checkbox('Dividends')
     
     k1 = ( 2 / (window1 + 1) )
     k2 = ( 2 / (window2 + 1) )
     
-    MA1 = all_data.Close.rolling(window = window1).mean().dropna()
-    MA2 = all_data.Close.rolling(window = window2).mean().dropna()
+    MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
+    MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
     
-    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), line = dict(color='#d06539'), opacity=1)
+    trace_avg1 = go.Scatter(x = MA1.index, y = MA1, name = 'MA'+ str(window1), 
+                           line = dict(color='#d06539'), opacity=1)
     
-    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), line = dict(color='#0032ac'), opacity=1)
+    trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
+                           line = dict(color='#0032ac'), opacity=1)
     
     ema_data1 = pd.DataFrame(index = MA1.index)
-    ema_data1['Price'] = all_data.dropna().Close
-    ema_data1['MA'] = pd.DataFrame(MA1)
-    #ema_data1['EMA'] = np.NaN
-    ema_data1['EMA'] = pd.DataFrame(MA1)
-    #ema_data1 = ema_data1.reset_index().set_index(['Date'])
-    ema_data1 = ema_data1.reset_index()
-    #ema_data1 = pd.DataFrame(ema_data1)
-    #ema_data1['EMA'][0] = ema_data1['MA'][1]
-    #ema_data1.at[0,'EMA'] = ema_data1.iloc[1].MA
-        
-    #for i in range(1, len(ema_data1)):
-    #    ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
+    ema_data1['Price'] = all_data.loc[stock].dropna().Close
+    ema_data1['MA'] = MA1
+    ema_data1['EMA'] = np.NaN
+    ema_data1.EMA[0] = ema_data1.MA[1]
     
     for i in range(1, len(ema_data1)):
-        ema_data1.at[i,'EMA'] = (ema_data1.iloc[i].Price * k1) + ((1 - k1) * ema_data1.iloc[i-1].EMA)
+        ema_data1.EMA[i] = (ema_data1.Price[i] * k1) + ((1 - k1) * ema_data1.EMA[i-1])
         
-    ema_data1 = ema_data1.set_index(['Date'])
-    
     ema_data2 = pd.DataFrame(index = MA2.index)
-    ema_data2['Price'] = all_data.dropna().Close
-    ema_data2['MA'] = pd.DataFrame(MA2)
-    ema_data2['EMA'] = pd.DataFrame(MA2)
-    #ema_data2['EMA'] = np.NaN
-    #ema_data2 = ema_data2.reset_index().set_index(['Date'])
-    ema_data2 = ema_data2.reset_index()
-    #ema_data2 = pd.DataFrame(ema_data2)
-    #ema_data2['EMA'][0] = ema_data2['MA'][1]
-    #ema_data2.at[0,'EMA'] = ema_data2.iloc[1].MA
-        
-    auxm = all_data.dropna()
+    ema_data2['Price'] = all_data.loc[stock].dropna().Close
+    ema_data2['MA'] = MA2
+    ema_data2['EMA'] = np.NaN
+    ema_data2.EMA[0] = ema_data2.MA[1]
+    
+    auxm = all_data.loc[stock].dropna()
     mm1 = get_ema(window1, auxm.Close)
     mm2 = get_ema(window2, auxm.Close)
     mm_macd = mm1.EMA - mm2.EMA
-    mm_macd = mm_macd.rename('Close')
     mm_signal = get_ema(9, mm_macd.dropna()).EMA
     hist_macd = mm_macd - mm_signal
     
-    #for i in range(1, len(ema_data2)):
-    #    ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
-        
     for i in range(1, len(ema_data2)):
-        ema_data2.at[i,'EMA'] = (ema_data2.iloc[i].Price * k2) + ((1 - k2) * ema_data2.iloc[i-1].EMA)
-    
-    ema_data2 = ema_data2.set_index(['Date'])
+        ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
     
     trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
@@ -275,15 +242,15 @@ if login == True:
     
     trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
     
-    HighS = all_data.High.rolling(window = 8).mean().dropna()
-    LowS = all_data.Low.rolling(window = 8).mean().dropna()
+    HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
+    LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
     
     trace_high = go.Scatter(x = HighS.index, y = HighS, name = 'High Avg', opacity = 1, line = dict(color='#cfc74d'))
     
     trace_low = go.Scatter(x = LowS.index, y = LowS, name = 'Low Avg', opacity = 1, line = dict(color='#cfc74d'))
     
-    boll = all_data.Close.rolling(window = 20).mean().dropna()
-    bollstdv = all_data.Close.rolling(window = 20).std().dropna()
+    boll = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
+    bollstdv = all_data.loc[stock].Close.rolling(window = 20).std().dropna()
     
     bollh = boll + bollstdv.apply(lambda x: (x * 2))
     bolll = boll - bollstdv.apply(lambda x: (x * 2))
@@ -294,7 +261,35 @@ if login == True:
     
     trace_bollm = go.Scatter(x = boll.index, y = boll, name = 'Avg', opacity = 1, line = dict(color='#0d0303'))
     
-      
+    stock_ifr = all_data.loc[stock].Close
+    ifr = pd.DataFrame(index = stock_ifr.index)
+    ifr_changes = stock_ifr.diff()
+    ifr['gain'] = ifr_changes.clip(lower=0)
+    ifr['loss'] = ifr_changes.clip(upper=0).abs()
+    
+    ifr['gainAvg'] = np.NaN
+    ifr['lossAvg'] = np.NaN
+    
+    windowi = 14
+    ifr.gainAvg[:windowi] = ifr.gain[:windowi].mean()
+    ifr.lossAvg[:windowi] = ifr.loss[:windowi].mean()
+    ifr.gainAvg[windowi] = ifr.iloc[0:windowi].gain.mean()
+    ifr.lossAvg[windowi] = ifr.iloc[0:windowi].loss.mean()
+    
+    for i in range(windowi+1,len(ifr)):
+        # ifr.gainAvg[i] = (ifr.gainAvg[i-1]*(windowi - 1) + ifr.gain[i])/windowi
+        # ifr.lossAvg[i] = (ifr.lossAvg[i-1]*(windowi - 1) - ifr.loss[i])/windowi
+        ifr.gainAvg[i] = ifr.gain[i-windowi:i].sum() / windowi
+        ifr.lossAvg[i] = ifr.loss[i-windowi:i].sum() / windowi
+        
+    ifr['value'] = 100 - (100/(1 + (ifr.gainAvg / ifr.lossAvg)))
+    ifr['h70'] = 70
+    ifr['h30'] = 30
+    
+    trace_ifr = go.Scatter(x = ifr.index, y = ifr.value, opacity = 1, showlegend = True)
+    trace_h70 = go.Scatter(x = ifr.index, y = ifr.h70, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    trace_h30 = go.Scatter(x = ifr.index, y = ifr.h30, opacity = 0.7, line=dict(color='rgb(255, 0, 0)', dash='dash'), showlegend = False)
+    
     data = [trace]
     #data = [trace, trace_avg1, trace_avg2, trace_ema1, trace_ema2]
     if chkFib == True:
@@ -380,20 +375,20 @@ if login == True:
         st.plotly_chart(fig1, use_container_width = False)
     
     if ckRenko == True:
-        all_data_renko = all_data
+        all_data_renko = all_data.reset_index('Ticker')
         bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
         figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
         st.set_option('deprecation.showPyplotGlobalUse', False)   
         st.pyplot(figrenko)
         
-    # if ckIfr == True:
-    #     data2 = [trace_ifr, trace_h70, trace_h30]
-    #     fig2 = simple_plot(data2, 'Relative Force Index')
-    #     fig2.update_layout(width = 1000, height = 280)
-    #     st.plotly_chart(fig2, use_container_width = False)
+    if ckIfr == True:
+        data2 = [trace_ifr, trace_h70, trace_h30]
+        fig2 = simple_plot(data2, 'Relative Force Index')
+        fig2.update_layout(width = 1000, height = 280)
+        st.plotly_chart(fig2, use_container_width = False)
     
     
-    stock_obv = all_data
+    stock_obv = all_data.loc[stock]
     obv = pd.DataFrame(index = stock_obv.index)
     obv_changes = stock_obv.Close - stock_obv.Open
     obv['open'] = stock_obv.Open
@@ -409,22 +404,21 @@ if login == True:
         fig_obv.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig_obv, use_container_width = False)
         
-    # ### Dividends
+    ### Dividends
     
-    # sinfo = yf.Ticker(str(stock))
-    # data_d = sinfo.dividends.resample('Y').sum()
-    # data_d = sinfo.dividends.sum()
-    # data_d = data_d.reset_index()
-    # data_d['Year'] = data_d['Date'].dt.year
-    # data_d = data_d[data_d['Year'] >= start_date.year]
-    # data_d = data_d.reset_index()
-    # trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
+    sinfo = yf.Ticker(str(stock))
+    data_d = sinfo.dividends.resample('Y').sum()
+    data_d = data_d.reset_index()
+    data_d['Year'] = data_d['Date'].dt.year
+    data_d = data_d[data_d['Year'] >= start_date.year]
+    data_d = data_d.reset_index()
+    trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
     
-    # if ckDividends == True:
-    #     datad = [trace_dividends]
-    #     fig_dividends = simple_plot(datad, '')
-    #     fig_dividends.update_layout(width = 1000, height = 280)
-    #     st.plotly_chart(fig_dividends, use_container_width = False)
+    if ckDividends == True:
+        datad = [trace_dividends]
+        fig_dividends = simple_plot(datad, '')
+        fig_dividends.update_layout(width = 1000, height = 280)
+        st.plotly_chart(fig_dividends, use_container_width = False)
     
 ########## algorithm for opportunities
     
@@ -519,190 +513,190 @@ if login == True:
 
 
 ###########################
-    # if username == 'admin':    
-    #     if st.button("COMBINED - DL + ARIMA"):
+    if username == 'admin':    
+        if st.button("COMBINED - DL + ARIMA"):
             
-    #         df_acao_fec = all_data.reset_index()
-    #         df_acao_fec = df_acao_fec[['Date', 'Close']]
-    #         df_acao_fec = df_acao_fec[:-1]
-    #         dates = df_acao_fec['Date']
-    #         df_acao_fec = df_acao_fec.set_index(['Date'])
+            df_acao_fec = all_data.reset_index()
+            df_acao_fec = df_acao_fec[['Date', 'Close']]
+            df_acao_fec = df_acao_fec[:-1]
+            dates = df_acao_fec['Date']
+            df_acao_fec = df_acao_fec.set_index(['Date'])
                    
-    #         model_arima = auto_arima(df_acao_fec,start_p=1, start_q=1,
-    #                            max_p=3, max_q=3, m=12,
-    #                            start_P=0, seasonal=True,
-    #                            d=1, D=1, trace=True,
-    #                            error_action='ignore',  
-    #                            suppress_warnings=True)
+            model_arima = auto_arima(df_acao_fec,start_p=1, start_q=1,
+                                max_p=3, max_q=3, m=12,
+                                start_P=0, seasonal=True,
+                                d=1, D=1, trace=True,
+                                error_action='ignore',  
+                                suppress_warnings=True)
            
-    #         n_future = 9
-    #         forecast = model_arima.predict(n_periods = n_future)
+            n_future = 9
+            forecast = model_arima.predict(n_periods = n_future)
             
-    #         list_output_prev_arima = forecast.tolist()
+            list_output_prev_arima = forecast.tolist()
             
-    #         predict_dates = pd.date_range(list(dates)[-1] + pd.DateOffset((1)), periods=n_future, freq='b').tolist()
-    #         #predict_dates
+            predict_dates = pd.date_range(list(dates)[-1] + pd.DateOffset((1)), periods=n_future, freq='b').tolist()
+            #predict_dates
             
-    #         forecast_dates =[]
-    #         for i in predict_dates:
-    #             forecast_dates.append(i.date())    
+            forecast_dates =[]
+            for i in predict_dates:
+                forecast_dates.append(i.date())    
             
-    #         df_forecast = pd.DataFrame({'data':np.array(forecast_dates), 'close':list_output_prev_arima})
-    #         df_forecast['data'] = pd.to_datetime(df_forecast['data'])
-    #         df_forecast = df_forecast.set_index(['data'])
-    #         #df_forecast
+            df_forecast = pd.DataFrame({'data':np.array(forecast_dates), 'close':list_output_prev_arima})
+            df_forecast['data'] = pd.to_datetime(df_forecast['data'])
+            df_forecast = df_forecast.set_index(['data'])
+            #df_forecast
             
-    #         trace_arima = go.Scatter(x = df_forecast.index, y = df_forecast.close, opacity = 1, line=dict(color='rgb(155, 100, 255)'), mode = 'lines', name='ARIMA Forecast', showlegend = True)
+            trace_arima = go.Scatter(x = df_forecast.index, y = df_forecast.close, opacity = 1, line=dict(color='rgb(155, 100, 255)'), mode = 'lines', name='ARIMA Forecast', showlegend = True)
             
             
-    #         qtd_linhas = len(df_acao_fec)
+            qtd_linhas = len(df_acao_fec)
     
-    #         qtd_linhas_treino = round(0.9 * qtd_linhas)
-    #         qtd_linhas_teste = qtd_linhas - qtd_linhas_treino
+            qtd_linhas_treino = round(0.9 * qtd_linhas)
+            qtd_linhas_teste = qtd_linhas - qtd_linhas_treino
     
-    #         #normalizando os dados
-    #         scaler = StandardScaler()        
-    #         df_scaled = scaler.fit_transform(df_acao_fec)
+            #normalizando os dados
+            scaler = StandardScaler()        
+            df_scaled = scaler.fit_transform(df_acao_fec)
             
-    #         #separa treino e teste
-    #         train = df_scaled[:qtd_linhas_treino]
-    #         test = df_scaled[qtd_linhas_treino: qtd_linhas_treino + qtd_linhas_teste]
+            #separa treino e teste
+            train = df_scaled[:qtd_linhas_treino]
+            test = df_scaled[qtd_linhas_treino: qtd_linhas_treino + qtd_linhas_teste]
             
-    #         #gerando dados de treino e teste
-    #         steps = 15
-    #         features = [0] # indices of Close, Volume, and Delta columns
-    #         X_train, Y_train = create_df(train, steps, features)
-    #         X_test, Y_test = create_df(test, steps, features)
+            #gerando dados de treino e teste
+            steps = 15
+            features = [0] # indices of Close, Volume, and Delta columns
+            X_train, Y_train = create_df(train, steps, features)
+            X_test, Y_test = create_df(test, steps, features)
             
-    #         #gerando os dados que o modelo espera
-    #         X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], len(features))
-    #         X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], len(features))
+            #gerando os dados que o modelo espera
+            X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], len(features))
+            X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], len(features))
     
-    #         n_lstm = 100
+            n_lstm = 100
                
-    #         #montando a rede
-    #         model = Sequential()
-    #         model.add(LSTM(n_lstm, return_sequences=True, input_shape=(steps,len(features))))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm, return_sequences=True))
-    #         model.add(Dropout(0.2))
-    #         model.add(LSTM(n_lstm))
-    #         model.add(Dropout(0.2))
-    #         model.add(Dense(1))
+            #montando a rede
+            model = Sequential()
+            model.add(LSTM(n_lstm, return_sequences=True, input_shape=(steps,len(features))))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm, return_sequences=True))
+            model.add(Dropout(0.2))
+            model.add(LSTM(n_lstm))
+            model.add(Dropout(0.2))
+            model.add(Dense(1))
             
-    #         model.compile(optimizer = 'adam', loss='mse')
+            model.compile(optimizer = 'adam', loss='mse')
             
-    #         model.summary()
+            model.summary()
             
-    #         #treinamento do modelo
-    #         validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs = 30, batch_size=10, verbose = 2)
+            #treinamento do modelo
+            validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs = 30, batch_size=10, verbose = 2)
             
-    #         df_training = pd.DataFrame()
-    #         df_training['loss'] = validation.history['loss']
-    #         df_training['val_loss'] = validation.history['val_loss']
+            df_training = pd.DataFrame()
+            df_training['loss'] = validation.history['loss']
+            df_training['val_loss'] = validation.history['val_loss']
             
-    #         preva = model.predict(X_train)
-    #         preva = scaler.inverse_transform(preva)
+            preva = model.predict(X_train)
+            preva = scaler.inverse_transform(preva)
             
-    #         prevb = model.predict(X_test)
-    #         prevb = scaler.inverse_transform(prevb)
+            prevb = model.predict(X_test)
+            prevb = scaler.inverse_transform(prevb)
             
-    #         dfa = pd.DataFrame()
-    #         dfa['close'] = pd.DataFrame(np.array(preva).tolist())
-    #         dfa.index = df_acao_fec[steps:len(preva)+steps].index
+            dfa = pd.DataFrame()
+            dfa['close'] = pd.DataFrame(np.array(preva).tolist())
+            dfa.index = df_acao_fec[steps:len(preva)+steps].index
                     
-    #         dfb = pd.DataFrame()
-    #         dfb['close'] = pd.DataFrame(np.array(prevb).tolist())
-    #         dfb.index = df_acao_fec[len(preva)+2*steps:len(preva)+2*steps+len(prevb)].index
+            dfb = pd.DataFrame()
+            dfb['close'] = pd.DataFrame(np.array(prevb).tolist())
+            dfb.index = df_acao_fec[len(preva)+2*steps:len(preva)+2*steps+len(prevb)].index
                
-    #         trace_preva = go.Scatter(x = dfa.index, y = dfa['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Train', showlegend = True)
-    #         trace_prevb = go.Scatter(x = dfb.index, y = dfb['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Test', showlegend = True)
+            trace_preva = go.Scatter(x = dfa.index, y = dfa['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Train', showlegend = True)
+            trace_prevb = go.Scatter(x = dfb.index, y = dfb['close'], opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM-Model_Test', showlegend = True)
             
-    #         trace_training = go.Scatter(x = df_training.index, y = df_training['loss'], opacity = 1, line=dict(color='rgb(255, 0, 0)'), name='training loss', showlegend = True)
-    #         trace_training1 = go.Scatter(x = df_training.index, y = df_training['val_loss'], opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='validation loss', showlegend = True)
+            trace_training = go.Scatter(x = df_training.index, y = df_training['loss'], opacity = 1, line=dict(color='rgb(255, 0, 0)'), name='training loss', showlegend = True)
+            trace_training1 = go.Scatter(x = df_training.index, y = df_training['val_loss'], opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='validation loss', showlegend = True)
             
-    #         datatrain = [trace_training, trace_training1]             
-    #         figtrain = simple_plot(datatrain, str(stock))
-    #         st.plotly_chart(figtrain, use_container_width = False)
+            datatrain = [trace_training, trace_training1]             
+            figtrain = simple_plot(datatrain, str(stock))
+            st.plotly_chart(figtrain, use_container_width = False)
                    
-    #         #previsao para os proximos 10 dias
-    #         length_test = len(test)
-    #         #length_test
+            #previsao para os proximos 10 dias
+            length_test = len(test)
+            #length_test
             
-    #         #pegar os ultimos dias que sao o tamanho do step
-    #         days_input_steps = length_test - steps
+            #pegar os ultimos dias que sao o tamanho do step
+            days_input_steps = length_test - steps
             
-    #         #transforma em array
-    #         input_steps = test[days_input_steps:]
-    #         input_steps = np.array(input_steps).reshape(1,-1)
-    #         #input_steps
+            #transforma em array
+            input_steps = test[days_input_steps:]
+            input_steps = np.array(input_steps).reshape(1,-1)
+            #input_steps
     
-    #         #transformar em lista
-    #         list_output_steps = list(input_steps)
-    #         list_output_steps = list_output_steps[0].tolist()
-    #         #list_output_steps
+            #transformar em lista
+            list_output_steps = list(input_steps)
+            list_output_steps = list_output_steps[0].tolist()
+            #list_output_steps
             
-    #         pred_output =[]
-    #         i = 0
+            pred_output =[]
+            i = 0
             
-    #         while(i<n_future):
-    #             if(len(list_output_steps)>steps):
-    #                 input_steps = np.array(list_output_steps[1:])
-    #                 #print('{} dia. Valores de entrada -> {}'.format(i, input_steps))
-    #                 input_steps = input_steps.reshape(1,-1)
-    #                 input_steps = input_steps.reshape(1, steps, len(features))
+            while(i<n_future):
+                if(len(list_output_steps)>steps):
+                    input_steps = np.array(list_output_steps[1:])
+                    #print('{} dia. Valores de entrada -> {}'.format(i, input_steps))
+                    input_steps = input_steps.reshape(1,-1)
+                    input_steps = input_steps.reshape(1, steps, len(features))
                     
-    #                 pred = model.predict(input_steps, verbose=0)
+                    pred = model.predict(input_steps, verbose=0)
                     
-    #                 #print('{} dia. Valor previsto -> {}'.format(i, pred))
-    #                 list_output_steps.extend(pred[0].tolist())
-    #                 list_output_steps = list_output_steps[1:]
-    #                 pred_output.extend(pred.tolist())
-    #                 i=i+1
-    #             else:
-    #                 input_steps = input_steps.reshape(1, steps, len(features))
-    #                 pred = model.predict(input_steps, verbose=0)
-    #                 #print(pred[0])
-    #                 list_output_steps.extend(pred[0].tolist())
-    #                 #print(len(list_output_steps))
-    #                 pred_output.extend(pred.tolist())
-    #                 i=i+1
+                    #print('{} dia. Valor previsto -> {}'.format(i, pred))
+                    list_output_steps.extend(pred[0].tolist())
+                    list_output_steps = list_output_steps[1:]
+                    pred_output.extend(pred.tolist())
+                    i=i+1
+                else:
+                    input_steps = input_steps.reshape(1, steps, len(features))
+                    pred = model.predict(input_steps, verbose=0)
+                    #print(pred[0])
+                    list_output_steps.extend(pred[0].tolist())
+                    #print(len(list_output_steps))
+                    pred_output.extend(pred.tolist())
+                    i=i+1
             
-    #         #transforma saida
-    #         prev = scaler.inverse_transform(pred_output)
-    #         prev = np.array(prev).reshape(1,-1)
-    #         list_output_prev = list(prev)
-    #         list_output_prev = prev[0].tolist()
-    #         #list_output_prev
+            #transforma saida
+            prev = scaler.inverse_transform(pred_output)
+            prev = np.array(prev).reshape(1,-1)
+            list_output_prev = list(prev)
+            list_output_prev = prev[0].tolist()
+            #list_output_prev
                
-    #         df_forecast1 = pd.DataFrame(index = forecast_dates)
-    #         df_forecast1['close'] = list_output_prev     
+            df_forecast1 = pd.DataFrame(index = forecast_dates)
+            df_forecast1['close'] = list_output_prev     
            
-    #         trace_lstm = go.Scatter(x = df_forecast1.index, y = df_forecast1.close, opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM Forecast', showlegend = True)
+            trace_lstm = go.Scatter(x = df_forecast1.index, y = df_forecast1.close, opacity = 1, line=dict(color='rgb(255, 0, 255)'), mode = 'lines', name='LSTM Forecast', showlegend = True)
               
-    #         df_forecast_combined = pd.DataFrame(index = forecast_dates)
-    #         df_forecast_combined['close'] = (df_forecast['close'] + df_forecast1['close'])/2
+            df_forecast_combined = pd.DataFrame(index = forecast_dates)
+            df_forecast_combined['close'] = (df_forecast['close'] + df_forecast1['close'])/2
             
-    #         trace_combined = go.Scatter(x = df_forecast_combined.index, y = df_forecast_combined.close, opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='Combined Prediction', mode = 'lines', showlegend = True)
+            trace_combined = go.Scatter(x = df_forecast_combined.index, y = df_forecast_combined.close, opacity = 1, line=dict(color='rgb(0, 0, 255)'), name='Combined Prediction', mode = 'lines', showlegend = True)
             
-    #         data = [trace, trace_arima, trace_lstm, trace_combined, trace_preva, trace_prevb]
-    #         #data = [trace, trace_arima, trace_lstm, trace_preva, trace_prevb]                 
-    #         fig = simple_plot(data, str(stock))
-    #         st.plotly_chart(fig, use_container_width = False)
+            data = [trace, trace_arima, trace_lstm, trace_combined, trace_preva, trace_prevb]
+            #data = [trace, trace_arima, trace_lstm, trace_preva, trace_prevb]                 
+            fig = simple_plot(data, str(stock))
+            st.plotly_chart(fig, use_container_width = False)
 
 
