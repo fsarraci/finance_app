@@ -207,7 +207,7 @@ if login == True:
     ckBollinger = st.sidebar.checkbox('Bollinger')
     #ckIfr = st.sidebar.checkbox('IFR')
     ckObv = st.sidebar.checkbox('OBV')
-    ckDividends = st.sidebar.checkbox('Dividends')
+    #ckDividends = st.sidebar.checkbox('Dividends')
     
     k1 = ( 2 / (window1 + 1) )
     k2 = ( 2 / (window2 + 1) )
@@ -409,21 +409,22 @@ if login == True:
         fig_obv.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig_obv, use_container_width = False)
         
-    ### Dividends
+    # ### Dividends
     
-    sinfo = yf.Ticker(str(stock))
-    data_d = sinfo.dividends.resample('Y').sum()
-    data_d = data_d.reset_index()
-    data_d['Year'] = data_d['Date'].dt.year
-    data_d = data_d[data_d['Year'] >= start_date.year]
-    data_d = data_d.reset_index()
-    trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
+    # sinfo = yf.Ticker(str(stock))
+    # data_d = sinfo.dividends.resample('Y').sum()
+    # data_d = sinfo.dividends.sum()
+    # data_d = data_d.reset_index()
+    # data_d['Year'] = data_d['Date'].dt.year
+    # data_d = data_d[data_d['Year'] >= start_date.year]
+    # data_d = data_d.reset_index()
+    # trace_dividends = go.Bar(x = data_d['Year'], y = data_d['Dividends'], marker_color = 'blue', name = 'Dividends')
     
-    if ckDividends == True:
-        datad = [trace_dividends]
-        fig_dividends = simple_plot(datad, '')
-        fig_dividends.update_layout(width = 1000, height = 280)
-        st.plotly_chart(fig_dividends, use_container_width = False)
+    # if ckDividends == True:
+    #     datad = [trace_dividends]
+    #     fig_dividends = simple_plot(datad, '')
+    #     fig_dividends.update_layout(width = 1000, height = 280)
+    #     st.plotly_chart(fig_dividends, use_container_width = False)
     
 ########## algorithm for opportunities
     
