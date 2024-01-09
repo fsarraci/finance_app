@@ -6,7 +6,4 @@ plotly
 requests
 openpyxl
 mplfinance
-tensorflow
 protobuf
-scikit-learn 
-pmdarima == 2.0.2
