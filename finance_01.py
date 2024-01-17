@@ -137,8 +137,19 @@ if login == True:
     tickers_list = [*set(tickers_list)]
     tickers_list.sort()
 
+    tickers_list_favorites = ['ITSA4.SA', 'BBDC4.SA', 'CAML3.SA', 'AGRO3.SA', 'CMIG4.SA', 'GRND3.SA', 'KLBN3.SA', 'MRVE3.SA', 'TAEE11.SA']
+    tickers_list_favorites= [*set(tickers_list_favorites)]
+    tickers_list_favorites.sort()            
+    
     st.sidebar.write("""Stock Analysis""" + ' - ' + str(len(tickers_list)) + ' tickers')
     stock = st.sidebar.selectbox('Select a stock', tickers_list)
+    
+    ckStockFavorite = st.sidebar.checkbox('Get Favorite Stock')
+    stock_favorite = st.sidebar.selectbox('Favorite Stocks', tickers_list_favorites)
+    
+    if ckStockFavorite == True:
+        stock = stock_favorite
+        
     tickers = [stock]
     # print(tickers)
     # print(type(tickers))
