@@ -140,6 +140,8 @@ if login == True:
     st.sidebar.write("""Stock Analysis""" + ' - ' + str(len(tickers_list)) + ' tickers')
     stock = st.sidebar.selectbox('Select a stock', tickers_list)
     tickers = [stock]
+    # print(tickers)
+    # print(type(tickers))
     #aux_stock = df_stocks_list.loc[df_stocks_list['ticker'] == tickers[0]]
     #aux_stock = aux_stock.reset_index()
     #aux_stock.drop(aux_stock.columns[[0, 1]], axis=1, inplace=True)
@@ -153,7 +155,7 @@ if login == True:
     
     all_data = get(tickers, start_date, end_date)
 
-    print(all_data)
+    #print(all_data)
     stockpricel = round(all_data['Close'][-1],2)
     # aux_dat = all_data.reset_index()
     # aux_dat['Date'] = aux_dat['Date'].dt.strftime('%d-%m-%Y')
@@ -425,9 +427,13 @@ if login == True:
 ########## algorithm for opportunities
     
     if True: #username == 'admin' or username == 'user':  
-        start_date_min = end_date - timedelta(days=int(365*4)) # ultimos 4 anos
-        #end_date_min = datetime.now() - timedelta(days=30)
-        threshold = 1.2
+        start_date_min = end_date - timedelta(days=int(365*4)) # ultimos 3 anos
+        if start_date < start_date_min: 
+            start_date_min = start_date
+        
+        end_date_min = datetime.now() - timedelta(days=0)
+
+        threshold = 1.35
             
         if st.button('Check for Opportunities'):
             
@@ -436,7 +442,7 @@ if login == True:
             tickers_list = [*set(tickers_list)]
             t1list = tickers_list
             #t1list.pop()
-            all_data_full = get(t1list, start_date, end_date)
+            all_data_full = get(t1list, start_date_min, end_date_min)
                     
             datac = all_data_full.reset_index()
             
@@ -462,12 +468,12 @@ if login == True:
             tick_counter = 0
             for tick in tickers_list:
                 tick_counter += 1
-                st.write('Checking',tick,'Counter:',tick_counter)
+                
                 aux = pd.DataFrame([])
                 aux[tick] = close_min[tick]
                 min_value = aux[tick].min()
                 r_last = aux.iloc[-1].to_numpy()
-                MAlast = all_data_full.loc[tick].Close.rolling(window = 10).mean().dropna()
+                #MAlast = all_data_full.loc[tick].Close.rolling(window = 10).mean().dropna()
                 
                 auxmv = pd.DataFrame([])
                 auxmv = all_data_full.loc[tick].dropna()
@@ -475,21 +481,46 @@ if login == True:
                 mm1v = get_ema(12, auxmv.Close)
                 mm2v = get_ema(24, auxmv.Close)
                 mm_macdv = mm1v.EMA - mm2v.EMA
+                
                 mm_signalv = get_ema(9, mm_macdv.dropna()).EMA
                 hist_macdv = mm_macdv - mm_signalv
                 
-                try:
-                    if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
-                        data_min = pd.DataFrame([])
-                        data_min = aux.loc[aux[tick] == min_value]
-                        df_table.at[i, 'Ticker'] = str(tick)
-                        df_table.at[i, 'Current Price'] = round(close[tick][-1],2)
-                        df_table.at[i, 'Min Value History'] = round(min_value,2)
-                        df_table.at[i, 'Date Min Value'] = data_min.index[0].date()
-                        df_table.at[i, 'Delta Price'] = round(close[tick][-1],2) - round(min_value,2)
-                        i += 1
-                except:
-                    continue
+                #try:
+                    #if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
+                if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and mm_macdv[-1] >= 0.99 * mm_signalv[-1] and hist_macdv[-1] >= 0:
+                    
+                    st.write('Checking',tick,'Counter:',tick_counter)
+                    
+                    data_min = pd.DataFrame([])
+                    data_min = aux.loc[aux[tick] == min_value]
+                    df_table.at[i, 'Ticker'] = str(tick)
+                    df_table.at[i, 'Current Price'] = round(close[tick][-1],2)
+                    df_table.at[i, 'Min Value History'] = round(min_value,2)
+                    df_table.at[i, 'Date Min Value'] = data_min.index[0].date()
+                    df_table.at[i, 'Delta Price'] = round(close[tick][-1],2) - round(min_value,2)
+                    
+                    trace_macdp = go.Scatter(x = mm_macdv.index, y = mm_macdv, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
+                    trace_signalp = go.Scatter(x = mm_signalv.index, y = mm_signalv, name = 'Signal', line = dict(color='#B22222'), opacity=1)
+                    trace_hist_macdp = go.Scatter(x = hist_macdv.index, y = hist_macdv, name = 'Signal', fill = 'tozeroy')
+                    
+                    data1p = [trace_macdp, trace_signalp, trace_hist_macdp]
+                    fig1p = simple_plot(data1p, 'MACD')
+                    fig1p.update_layout(width = 1000, height = 280)
+                    st.plotly_chart(fig1p, use_container_width = False)
+        
+                    stockp = [tick]
+                    # print(stockp)
+                    # print(type(stockp))
+                    all_datap = get(stockp, start_date_min, end_date_min)
+                    all_data_renkop = all_datap.loc[stockp].reset_index('Ticker')
+                    bricksp = round(ATR(all_data_renkop,50)["ATR"][-1],2) 
+                    figrenkop, axp =  fplt.plot(all_data_renkop, type='renko',renko_params=dict(brick_size=bricksp, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
+                    st.set_option('deprecation.showPyplotGlobalUse', False)   
+                    st.pyplot(figrenkop)
+    
+                    i += 1
+                #except:
+                #    continue
                 
             st.write('Completed... Generating Results...')
             
