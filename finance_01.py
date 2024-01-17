@@ -132,7 +132,7 @@ if login == True:
        
     #tickers_list = df_stocks_list['ticker'].to_list()
     
-    tickers_list = ['BEES3.SA','HAPV3.SA', 'MGLU3.SA', 'AZUL4.SA', 'GOLL4.SA', 'PETR4.SA', 'CVCB3.SA', 'B3SA3.SA', 'BBDC4.SA', 'OIBR3.SA', 'ITUB4.SA', 'ABEV3.SA', 'VALE3.SA', 'BRFS3.SA', 'ITSA4.SA', 'COGN3.SA', 'CIEL3.SA', 'FNOR11.SA', 'AMAR3.SA', 'PETR3.SA', 'LREN3.SA', 'CEAB3.SA', 'POMO4.SA', 'RENT3.SA', 'USIM5.SA', 'MRFG3.SA', 'ELET3.SA', 'GGBR4.SA', 'CSAN3.SA', 'BBAS3.SA', 'BEEF3.SA', 'CPLE6.SA', 'BPAC11.SA', 'PRIO3.SA', 'CSNA3.SA', 'GOAU4.SA', 'JBSS3.SA', 'MRVE3.SA', 'CMIG4.SA', 'EQTL3.SA', 'BBSE3.SA', 'VIVR3.SA', 'UGPA3.SA', 'RAIL3.SA', 'BBDC3.SA', 'BBDC3.SA', 'TOTS3.SA', 'EMBR3.SA', 'RADL3.SA', 'GRND3.SA', 'CCRO3.SA', 'LIGT3.SA', 'MOVI3.SA', 'ECOR3.SA', 'ALPA4.SA', 'WEGE3.SA', 'SUZB3.SA', 'MULT3.SA', 'YDUQ3.SA', 'QUAL3.SA', 'ALUP11.SA', 'TEND3.SA', 'KLBN11.SA', 'GFSA3.SA', 'BPAN4.SA', 'CRFB3.SA', 'VAMO3.SA', 'ANIM3.SA', 'SMTO3.SA', 'BRAP4.SA', 'HYPE3.SA', 'RCSL3.SA', 'POMO3.SA', 'RAPT4.SA', 'ELET6.SA', 'TRPL4.SA', 'CPFE3.SA', 'KLBN4.SA', 'CYRE3.SA', 'ARZZ3.SA', 'SBSP3.SA', 'STBP3.SA', 'EGIE3.SA', 'ITUB3.SA', 'MDIA3.SA', 'VIVT3.SA', 'ODPV3.SA', 'FLRY3.SA', 'SAPR4.SA', 'EZTC3.SA', 'DIRR3.SA', 'BRKM5.SA', 'GUAR3.SA', 'BRSR6.SA', 'JHSF3.SA', 'IRBR3.SA', 'SANB11.SA', 'PSSA3.SA', 'TSLA34.SA', 'INEP3.SA', 'VIVA3.SA', 'AALR3.SA', 'CPLE3.SA', 'LUPA3.SA', 'TAEE11.SA', 'HBOR3.SA', 'CSMG3.SA', 'ENAT3.SA', 'ENGI11.SA', 'CAML3.SA', 'RANI3.SA', 'POSI3.SA', 'NEOE3.SA', 'MYPK3.SA', 'PTBL3.SA', 'MELI34.SA', 'ABCB4.SA', 'EVEN3.SA', 'MILS3.SA', 'MXRF11.SA', 'MEAL3.SA', 'COCE5.SA', 'KEPL3.SA', 'SLCE3.SA', 'ROMI3.SA', 'VGIR11.SA', 'BMGB4.SA', 'RCSL4.SA', 'SAPR11.SA', 'ETER3.SA', 'PDGR3.SA', 'TUPY3.SA', 'TASA4.SA', 'TRIS3.SA', 'FRAS3.SA', 'TAEE4.SA', 'SHUL4.SA', 'LOGG3.SA', 'JSLG3.SA', 'OIBR4.SA', 'INEP4.SA', 'USIM3.SA', 'DASA3.SA', 'VULC3.SA', 'PNVL3.SA', 'FESA4.SA', 'SEER3.SA', 'KLBN3.SA', 'AGRO3.SA', 'AZEV4.SA', 'SANB4.SA', 'SAPR3.SA', 'AMZO34.SA', 'SANB3.SA', 'TECN3.SA', 'SHOW3.SA', 'MSFT34.SA', 'VLID3.SA', 'AAPL34.SA', 'LEVE3.SA', 'UNIP6.SA', 'TAEE3.SA', 'GOAU3.SA', 'SGPS3.SA', 'BRPR3.SA', 'CMIG3.SA', 'ITSA3.SA', 'TPIS3.SA', 'TGMA3.SA', 'PFRM3.SA', 'LPSB3.SA', 'HCTR11.SA', 'BTCR11.SA', 'NFLX34.SA', 'ALUP4.SA', 'KNCR11.SA', 'GOGL34.SA']
+    tickers_list = ['BEES3.SA','HAPV3.SA', 'MGLU3.SA', 'AZUL4.SA', 'GOLL4.SA', 'PETR4.SA', 'CVCB3.SA', 'B3SA3.SA', 'BBDC4.SA', 'OIBR3.SA', 'ITUB4.SA', 'ABEV3.SA', 'VALE3.SA', 'BRFS3.SA', 'ITSA4.SA', 'COGN3.SA', 'CIEL3.SA', 'FNOR11.SA', 'AMAR3.SA', 'PETR3.SA', 'LREN3.SA', 'CEAB3.SA', 'POMO4.SA', 'RENT3.SA', 'USIM5.SA', 'MRFG3.SA', 'ELET3.SA', 'GGBR4.SA', 'CSAN3.SA', 'BBAS3.SA', 'BEEF3.SA', 'CPLE6.SA', 'BPAC11.SA', 'PRIO3.SA', 'CSNA3.SA', 'GOAU4.SA', 'JBSS3.SA', 'MRVE3.SA', 'CMIG4.SA', 'EQTL3.SA', 'BBSE3.SA', 'VIVR3.SA', 'UGPA3.SA', 'RAIL3.SA', 'BBDC3.SA', 'BBDC3.SA', 'TOTS3.SA', 'EMBR3.SA', 'RADL3.SA', 'GRND3.SA', 'CCRO3.SA', 'LIGT3.SA', 'MOVI3.SA', 'ECOR3.SA', 'ALPA4.SA', 'WEGE3.SA', 'SUZB3.SA', 'MULT3.SA', 'YDUQ3.SA', 'QUAL3.SA', 'ALUP11.SA', 'TEND3.SA', 'KLBN11.SA', 'GFSA3.SA', 'BPAN4.SA', 'CRFB3.SA', 'VAMO3.SA', 'ANIM3.SA', 'SMTO3.SA', 'BRAP4.SA', 'HYPE3.SA', 'RCSL3.SA', 'POMO3.SA', 'RAPT4.SA', 'ELET6.SA', 'TRPL4.SA', 'CPFE3.SA', 'KLBN4.SA', 'CYRE3.SA', 'ARZZ3.SA', 'SBSP3.SA', 'STBP3.SA', 'EGIE3.SA', 'ITUB3.SA', 'MDIA3.SA', 'VIVT3.SA', 'ODPV3.SA', 'FLRY3.SA', 'SAPR4.SA', 'EZTC3.SA', 'DIRR3.SA', 'BRKM5.SA', 'GUAR3.SA', 'BRSR6.SA', 'JHSF3.SA', 'IRBR3.SA', 'SANB11.SA', 'PSSA3.SA', 'TSLA34.SA', 'INEP3.SA', 'VIVA3.SA', 'AALR3.SA', 'CPLE3.SA', 'LUPA3.SA', 'TAEE11.SA', 'HBOR3.SA', 'CSMG3.SA', 'ENAT3.SA', 'ENGI11.SA', 'CAML3.SA', 'RANI3.SA', 'POSI3.SA', 'NEOE3.SA', 'MYPK3.SA', 'PTBL3.SA', 'MELI34.SA', 'ABCB4.SA', 'EVEN3.SA', 'MILS3.SA', 'MXRF11.SA', 'MEAL3.SA', 'COCE5.SA', 'KEPL3.SA', 'SLCE3.SA', 'ROMI3.SA', 'VGIR11.SA', 'BMGB4.SA', 'RCSL4.SA', 'SAPR11.SA', 'ETER3.SA', 'PDGR3.SA', 'TUPY3.SA', 'TASA4.SA', 'TRIS3.SA', 'FRAS3.SA', 'TAEE4.SA', 'SHUL4.SA', 'LOGG3.SA', 'JSLG3.SA', 'OIBR4.SA', 'INEP4.SA', 'USIM3.SA', 'DASA3.SA', 'VULC3.SA', 'PNVL3.SA', 'FESA4.SA', 'SEER3.SA', 'KLBN3.SA', 'AGRO3.SA', 'AZEV4.SA', 'SANB4.SA', 'SAPR3.SA', 'AMZO34.SA', 'SANB3.SA', 'TECN3.SA', 'SHOW3.SA', 'MSFT34.SA', 'VLID3.SA', 'AAPL34.SA', 'LEVE3.SA', 'UNIP6.SA', 'TAEE3.SA', 'GOAU3.SA', 'SGPS3.SA', 'CMIG3.SA', 'ITSA3.SA', 'TPIS3.SA', 'TGMA3.SA', 'PFRM3.SA', 'LPSB3.SA', 'HCTR11.SA', 'BTCR11.SA', 'NFLX34.SA', 'ALUP4.SA', 'KNCR11.SA', 'GOGL34.SA']
     
     tickers_list = [*set(tickers_list)]
     tickers_list.sort()
@@ -487,7 +487,7 @@ if login == True:
                 
                 #try:
                     #if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
-                if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and mm_macdv[-1] >= 0.99 * mm_signalv[-1] and hist_macdv[-1] >= 0:
+                if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and hist_macdv[-1] >= 0: #and mm_macdv[-1] >= 0.99 * mm_signalv[-1]
                     
                     st.write('Checking',tick,'Counter:',tick_counter)
                     
@@ -511,13 +511,14 @@ if login == True:
                     stockp = [tick]
                     # print(stockp)
                     # print(type(stockp))
+
                     all_datap = get(stockp, start_date_min, end_date_min)
                     all_data_renkop = all_datap.loc[stockp].reset_index('Ticker')
                     bricksp = round(ATR(all_data_renkop,50)["ATR"][-1],2) 
                     figrenkop, axp =  fplt.plot(all_data_renkop, type='renko',renko_params=dict(brick_size=bricksp, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
                     st.set_option('deprecation.showPyplotGlobalUse', False)   
                     st.pyplot(figrenkop)
-    
+                    
                     i += 1
                 #except:
                 #    continue
