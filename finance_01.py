@@ -202,7 +202,8 @@ if login == True:
     ckEMA1 = st.sidebar.checkbox('Exp Moving Avg')
     window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
     window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
-    ckMACD = st.sidebar.checkbox('MACD', value = True)
+    ckMACD = st.sidebar.checkbox('MACD - 26,12,9', value = True)
+    ckMACD2 = st.sidebar.checkbox('MACD - 3,10,16', value = True)
     ckRenko = st.sidebar.checkbox('Renko', value = True) 
     ckHiLo = st.sidebar.checkbox('HiLo')
     ckBollinger = st.sidebar.checkbox('Bollinger')
@@ -244,6 +245,13 @@ if login == True:
     mm_signal = get_ema(9, mm_macd.dropna()).EMA
     hist_macd = mm_macd - mm_signal
     
+    mm12 = get_ema(3, auxm.Close)
+    mm22 = get_ema(10, auxm.Close)
+    mm_macd2 = mm12.EMA - mm22.EMA
+    mm_signal2 = get_ema(16, mm_macd2.dropna()).EMA
+    hist_macd2 = mm_macd2 - mm_signal2
+
+    
     for i in range(1, len(ema_data2)):
         ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
     
@@ -251,11 +259,17 @@ if login == True:
     
     trace_ema2 = go.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
     
-    trace_macd = go.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
+    trace_macd = go.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD_12_26_9', line = dict(color='#17BECF'), opacity=1)
     
     trace_signal = go.Scatter(x = mm_signal.index, y = mm_signal, name = 'Signal', line = dict(color='#B22222'), opacity=1)
     
     trace_hist_macd = go.Scatter(x = hist_macd.index, y = hist_macd, name = 'Signal', fill = 'tozeroy')
+    
+    trace_macd2 = go.Scatter(x = mm_macd2.index, y = mm_macd2, name = 'MACD_3_10_16', line = dict(color='#17BECF'), opacity=1)
+    
+    trace_signal2 = go.Scatter(x = mm_signal2.index, y = mm_signal2, name = 'Signal2', line = dict(color='#B22222'), opacity=1)
+    
+    trace_hist_macd2 = go.Scatter(x = hist_macd2.index, y = hist_macd2, name = 'Signal2', fill = 'tozeroy')
     
     HighS = all_data.loc[stock].High.rolling(window = 8).mean().dropna()
     LowS = all_data.loc[stock].Low.rolling(window = 8).mean().dropna()
@@ -385,7 +399,13 @@ if login == True:
     
     if ckMACD == True:
         data1 = [trace_macd, trace_signal, trace_hist_macd]
-        fig1 = simple_plot(data1, 'MACD')
+        fig1 = simple_plot(data1, 'MACD_12_26_9')
+        fig1.update_layout(width = 1000, height = 280)
+        st.plotly_chart(fig1, use_container_width = False)
+    
+    if ckMACD2 == True:
+        data1 = [trace_macd2, trace_signal2, trace_hist_macd2]
+        fig1 = simple_plot(data1, 'MACD_3_10_16')
         fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
     
@@ -490,7 +510,7 @@ if login == True:
                 auxmv = all_data_full.loc[tick].dropna()
                 #print(tick)
                 mm1v = get_ema(12, auxmv.Close)
-                mm2v = get_ema(24, auxmv.Close)
+                mm2v = get_ema(26, auxmv.Close)
                 mm_macdv = mm1v.EMA - mm2v.EMA
                 
                 mm_signalv = get_ema(9, mm_macdv.dropna()).EMA
