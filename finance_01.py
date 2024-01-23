@@ -137,7 +137,7 @@ if login == True:
     tickers_list = [*set(tickers_list)]
     tickers_list.sort()
 
-    tickers_list_favorites = ['ITSA4.SA', 'BBDC4.SA', 'CAML3.SA', 'AGRO3.SA', 'CMIG4.SA', 'GRND3.SA', 'KLBN3.SA', 'MRVE3.SA', 'TAEE11.SA']
+    tickers_list_favorites = ['USDBRL=X','^BVSP','ITSA4.SA', 'BBDC4.SA', 'CAML3.SA', 'AGRO3.SA', 'CMIG4.SA', 'GRND3.SA', 'KLBN3.SA', 'MRVE3.SA', 'TAEE11.SA']
     tickers_list_favorites= [*set(tickers_list_favorites)]
     tickers_list_favorites.sort()            
     
@@ -245,10 +245,14 @@ if login == True:
     mm_signal = get_ema(9, mm_macd.dropna()).EMA
     hist_macd = mm_macd - mm_signal
     
-    mm12 = get_ema(3, auxm.Close)
-    mm22 = get_ema(10, auxm.Close)
-    mm_macd2 = mm12.EMA - mm22.EMA
-    mm_signal2 = get_ema(16, mm_macd2.dropna()).EMA
+    #mm12 = get_ema(3, auxm.Close)
+    #mm22 = get_ema(10, auxm.Close)
+    mm12 = all_data.loc[stock].Close.rolling(window = 3).mean().dropna()
+    mm22 = all_data.loc[stock].Close.rolling(window = 10).mean().dropna()
+    #mm_macd2 = mm12.EMA - mm22.EMA
+    mm_macd2 = mm12 - mm22
+    #mm_signal2 = get_ema(16, mm_macd2.dropna()).EMA
+    mm_signal2 = mm_macd2.rolling(window = 16).mean().dropna()
     hist_macd2 = mm_macd2 - mm_signal2
 
     
@@ -390,7 +394,13 @@ if login == True:
         data.append(trace_bolll)
         #data.append(trace_bollm)
     
-    fig = simple_plot(data, str(stock) + ' - Last Price: R$ ' + str(stockpricel))
+    titulo_princ = str(stock) + ' - Last Price: R$ ' + str(stockpricel)
+    if stock == '^BVSP':
+        titulo_princ = str(stock) + ' - ' + str(format(stockpricel,',.0f')) + ' Points'
+    if stock == 'USDBRL=X':
+        titulo_princ = str(stock) + ' - R$ ' + str(format(stockpricel,',.2f'))
+         
+    fig = simple_plot(data, titulo_princ)
     fig_voll = simple_plot([trace_vol], '')
     fig_voll.update_layout(width = 1000, height = 350)
         
@@ -399,26 +409,26 @@ if login == True:
     
     if ckMACD == True:
         data1 = [trace_macd, trace_signal, trace_hist_macd]
-        fig1 = simple_plot(data1, 'MACD_12_26_9')
+        fig1 = simple_plot(data1, 'MACD_12_26_9 - ' + stock)
         fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
     
     if ckMACD2 == True:
         data1 = [trace_macd2, trace_signal2, trace_hist_macd2]
-        fig1 = simple_plot(data1, 'MACD_3_10_16')
+        fig1 = simple_plot(data1, 'MACD_3_10_16 - ' + stock)
         fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
     
     if ckRenko == True:
         all_data_renko = all_data.reset_index('Ticker')
         bricks = round(ATR(all_data_renko,50)["ATR"][-1],2) 
-        figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
+        figrenko, ax =  fplt.plot(all_data_renko, type='renko',renko_params=dict(brick_size=bricks, atr_length=14), style='yahoo', title = "Renko Chart - " + stock, mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
         st.set_option('deprecation.showPyplotGlobalUse', False)   
         st.pyplot(figrenko)
         
     if ckIfr == True:
         data2 = [trace_ifr, trace_h70, trace_h30]
-        fig2 = simple_plot(data2, 'Relative Force Index')
+        fig2 = simple_plot(data2, 'Relative Force Index - ' + stock)
         fig2.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig2, use_container_width = False)
     
@@ -512,13 +522,18 @@ if login == True:
                 mm1v = get_ema(12, auxmv.Close)
                 mm2v = get_ema(26, auxmv.Close)
                 mm_macdv = mm1v.EMA - mm2v.EMA
-                
                 mm_signalv = get_ema(9, mm_macdv.dropna()).EMA
                 hist_macdv = mm_macdv - mm_signalv
                 
+                mm12v = auxmv.Close.rolling(window = 3).mean().dropna()
+                mm22v = auxmv.Close.rolling(window = 10).mean().dropna()
+                mm_macd2v = mm12v - mm22v
+                mm_signal2v = mm_macd2v.rolling(window = 16).mean().dropna()
+                hist_macd2v = mm_macd2v - mm_signal2v
+                
                 #try:
                     #if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
-                if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and hist_macdv[-1] >= 0: #and mm_macdv[-1] >= 0.99 * mm_signalv[-1]
+                if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and (hist_macdv[-1] >= 0 or hist_macd2v[-1] >= 0): #and mm_macdv[-1] >= 0.99 * mm_signalv[-1]
                     
                     st.write('Checking',tick,'Counter:',tick_counter)
                     
@@ -534,10 +549,19 @@ if login == True:
                     trace_signalp = go.Scatter(x = mm_signalv.index, y = mm_signalv, name = 'Signal', line = dict(color='#B22222'), opacity=1)
                     trace_hist_macdp = go.Scatter(x = hist_macdv.index, y = hist_macdv, name = 'Signal', fill = 'tozeroy')
                     
+                    trace_macdpv = go.Scatter(x = mm_macd2v.index, y = mm_macd2v, name = 'MACD', line = dict(color='#17BECF'), opacity=1)
+                    trace_signalpv = go.Scatter(x = mm_signal2v.index, y = mm_signal2v, name = 'Signal', line = dict(color='#B22222'), opacity=1)
+                    trace_hist_macdpv = go.Scatter(x = hist_macd2v.index, y = hist_macd2v, name = 'Signal', fill = 'tozeroy')
+                    
                     data1p = [trace_macdp, trace_signalp, trace_hist_macdp]
-                    fig1p = simple_plot(data1p, 'MACD')
+                    fig1p = simple_plot(data1p, 'MACD_12_26_9 - ' + tick)
                     fig1p.update_layout(width = 1000, height = 280)
                     st.plotly_chart(fig1p, use_container_width = False)
+                    
+                    data1pv = [trace_macdpv, trace_signalpv, trace_hist_macdpv]
+                    fig1pv = simple_plot(data1pv, 'MACD_3_10_16 - ' + tick)
+                    fig1pv.update_layout(width = 1000, height = 280)
+                    st.plotly_chart(fig1pv, use_container_width = False)
         
                     stockp = [tick]
                     # print(stockp)
@@ -546,7 +570,7 @@ if login == True:
                     all_datap = get(stockp, start_date_min, end_date_min)
                     all_data_renkop = all_datap.loc[stockp].reset_index('Ticker')
                     bricksp = round(ATR(all_data_renkop,50)["ATR"][-1],2) 
-                    figrenkop, axp =  fplt.plot(all_data_renkop, type='renko',renko_params=dict(brick_size=bricksp, atr_length=14), style='yahoo', title = "Renko Chart", mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
+                    figrenkop, axp =  fplt.plot(all_data_renkop, type='renko',renko_params=dict(brick_size=bricksp, atr_length=14), style='yahoo', title = "Renko Chart - " + tick, mav=(10), volume=False, figsize =(20, 5), tight_layout=False, returnfig = True) #panel_ratios=(3,1)
                     st.set_option('deprecation.showPyplotGlobalUse', False)   
                     st.pyplot(figrenkop)
                     
