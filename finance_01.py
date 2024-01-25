@@ -200,7 +200,7 @@ if login == True:
     window2 = 26
     ckMA1 = st.sidebar.checkbox('Moving Avg')
     ckEMA1 = st.sidebar.checkbox('Exp Moving Avg')
-    window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
+    window1 = st.sidebar.slider('Moving Average #1', 3, 15, 12)
     window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
     ckMACD = st.sidebar.checkbox('MACD - 26,12,9', value = True)
     ckMACD2 = st.sidebar.checkbox('MACD - 3,10,16', value = True)
