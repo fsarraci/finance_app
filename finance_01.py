@@ -200,9 +200,10 @@ if login == True:
     window2 = 26
     ckMA1 = st.sidebar.checkbox('Moving Avg')
     ckEMA1 = st.sidebar.checkbox('Exp Moving Avg')
-    window1 = st.sidebar.slider('Moving Average #1', 3, 15, 12)
+    window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
     window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
     ckMACD = st.sidebar.checkbox('MACD - 26,12,9', value = True)
+    ckdidi = st.sidebar.checkbox('DIDI Index', value = True)
     ckMACD2 = st.sidebar.checkbox('MACD - 3,10,16', value = True)
     ckRenko = st.sidebar.checkbox('Renko', value = True) 
     ckHiLo = st.sidebar.checkbox('HiLo')
@@ -222,6 +223,10 @@ if login == True:
     
     trace_avg2 = go.Scatter(x = MA2.index, y = MA2, name = 'MA'+ str(window2), 
                            line = dict(color='#0032ac'), opacity=1)
+    
+    didi3 = all_data.loc[stock].Close.rolling(window = 3).mean().dropna()
+    didi8 = all_data.loc[stock].Close.rolling(window = 8).mean().dropna()
+    didi20 = all_data.loc[stock].Close.rolling(window = 20).mean().dropna()
     
     ema_data1 = pd.DataFrame(index = MA1.index)
     ema_data1['Price'] = all_data.loc[stock].dropna().Close
@@ -262,6 +267,10 @@ if login == True:
     trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
     trace_ema2 = go.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
+    
+    trace_didi3 = go.Scatter(x = didi3.index, y = didi3 / didi8, name = '3 MA', line = dict(color='blue'), opacity=0.5)
+    trace_didi8 = go.Scatter(x = didi8.index, y = didi8 / didi8, name = '8 MA', line = dict(color='black'), opacity=0.5)
+    trace_didi20 = go.Scatter(x = didi20.index, y = didi20 / didi8, name = '20 MA', line = dict(color='red'), opacity=0.5)
     
     trace_macd = go.Scatter(x = mm_macd.index, y = mm_macd, name = 'MACD_12_26_9', line = dict(color='#17BECF'), opacity=1)
     
@@ -418,6 +427,12 @@ if login == True:
         fig1 = simple_plot(data1, 'MACD_3_10_16 - ' + stock)
         fig1.update_layout(width = 1000, height = 280)
         st.plotly_chart(fig1, use_container_width = False)
+    
+    if ckdidi == True:
+        datadidi = [trace_didi3, trace_didi8, trace_didi20]
+        figdidi = simple_plot(datadidi, 'DIDI Index - ' + stock)
+        figdidi.update_layout(width = 1000, height = 280)
+        st.plotly_chart(figdidi, use_container_width = False)
     
     if ckRenko == True:
         all_data_renko = all_data.reset_index('Ticker')
