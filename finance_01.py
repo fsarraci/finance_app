@@ -202,6 +202,7 @@ if login == True:
     ckEMA1 = st.sidebar.checkbox('Exp Moving Avg')
     window1 = st.sidebar.slider('Moving Average #1', 7, 15, 12)
     window2 = st.sidebar.slider('Moving Average #2', 15, 30, 26)
+    ckEMA200 = st.sidebar.checkbox('200 EMA', value = True)
     ckMACD = st.sidebar.checkbox('MACD - 26,12,9', value = True)
     ckdidi = st.sidebar.checkbox('DIDI Index', value = True)
     ckMACD2 = st.sidebar.checkbox('MACD - 3,10,16', value = True)
@@ -214,6 +215,7 @@ if login == True:
     
     k1 = ( 2 / (window1 + 1) )
     k2 = ( 2 / (window2 + 1) )
+    k3 = ( 2 / (200 + 1) )
     
     MA1 = all_data.loc[stock].Close.rolling(window = window1).mean().dropna()
     MA2 = all_data.loc[stock].Close.rolling(window = window2).mean().dropna()
@@ -243,6 +245,12 @@ if login == True:
     ema_data2['EMA'] = np.NaN
     ema_data2.EMA[0] = ema_data2.MA[1]
     
+    ema_data200 = pd.DataFrame(index = MA2.index)
+    ema_data200['Price'] = all_data.loc[stock].dropna().Close
+    ema_data200['MA'] = MA2
+    ema_data200['EMA'] = np.NaN
+    ema_data200.EMA[0] = ema_data200.MA[1]
+    
     auxm = all_data.loc[stock].dropna()
     mm1 = get_ema(window1, auxm.Close)
     mm2 = get_ema(window2, auxm.Close)
@@ -264,9 +272,14 @@ if login == True:
     for i in range(1, len(ema_data2)):
         ema_data2.EMA[i] = (ema_data2.Price[i] * k2) + ((1 - k2) * ema_data2.EMA[i-1])
     
+    for ix in range(1, len(ema_data200)):
+        ema_data200.EMA[ix] = (ema_data200.Price[ix] * k3) + ((1 - k3) * ema_data200.EMA[ix-1])
+        
     trace_ema1 = go.Scatter(x = ema_data1.index, y = ema_data1.EMA, name = 'Exp MA'+ str(window1), line = dict(color='#d06539'), opacity=0.5)
     
     trace_ema2 = go.Scatter(x = ema_data2.index, y = ema_data2.EMA, name = 'Exp MA'+ str(window2), line = dict(color='#0032ac'), opacity=0.5)
+    
+    trace_ema200 = go.Scatter(x = ema_data200.index, y = ema_data200.EMA, name = 'Exp MA'+ str(200), line = dict(color='blue'), opacity=0.5)
     
     trace_didi3 = go.Scatter(x = didi3.index, y = didi3 / didi8, name = '3 MA', line = dict(color='blue'), opacity=0.5)
     trace_didi8 = go.Scatter(x = didi8.index, y = didi8 / didi8, name = '8 MA', line = dict(color='black'), opacity=0.5)
@@ -393,6 +406,9 @@ if login == True:
     if ckEMA1 == True:
         data.append(trace_ema1)
         data.append(trace_ema2)
+    
+    if ckEMA200 == True:
+        data.append(trace_ema200)
     
     if ckHiLo == True:
         data.append(trace_high)
@@ -545,13 +561,20 @@ if login == True:
                 mm_macd2v = mm12v - mm22v
                 mm_signal2v = mm_macd2v.rolling(window = 16).mean().dropna()
                 hist_macd2v = mm_macd2v - mm_signal2v
-                
+                               
                 #try:
                     #if close[tick][-1] <= (min_value * threshold) and r_last[0] >= 0.99*MAlast[-1] and hist_macdv[-1] >= 0:
                 if (close[tick][-1] + close[tick][-2]) / 2 <= (min_value * threshold) and (hist_macdv[-1] >= 0 or hist_macd2v[-1] >= 0): #and mm_macdv[-1] >= 0.99 * mm_signalv[-1]
                     
                     st.write('Checking',tick,'Counter:',tick_counter)
                     
+                    ema200o = get_ema(200, auxmv.Close).EMA
+                    teste200 = (ema200o[-1] + ema200o[-2]) / 2 < (close[tick][-1] + close[tick][-2]) / 2
+                    if teste200 == True:
+                        st.write('200 EMA - ' + tick + ': Good Trend, prices going up. :sunglasses:')
+                    else:
+                        st.write('200 EMA - ' + tick + ': NOT good trend, prices going down yet.')
+                                        
                     data_min = pd.DataFrame([])
                     data_min = aux.loc[aux[tick] == min_value]
                     df_table.at[i, 'Ticker'] = str(tick)
